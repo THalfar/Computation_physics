@@ -74,7 +74,33 @@ def riemann_sum(x, function):
         
     return summa
     
+def simpson_int(x, function):
     
+    # calculate point interval, assuming that x has at least 2 points    
+    h = x[1] - x[0]
+
+    summa = 0
+    
+    # Is grid x even or odd
+    if len(x)%2 == 0:
+        pariton = False
+    else:
+        pariton = True
+        
+    askelia = int( (len(x) -1) / 2 - 1 )
+    
+
+    
+    for i in range(askelia):
+        # print(function(x[2*i]))
+        # print(4*function(x[2*i+1]))
+        # print(function(x[2*i+2]))
+        summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
+
+        
+    return summa * h/3
+        
+
 
 """
 These are example functions for testing
@@ -149,12 +175,11 @@ def test_second_derivate(x, dx):
    
 
 def test_integral():
-    
-    
+        
     x = np.linspace(0,1, 123)
     
     # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
-    oikea = 1/3 + 3/2
+    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
     testi = riemann_sum(x, testifun1)
     erotus = np.abs(oikea-testi)
     print("Erotus F1 oikeaan tulokseen riemannin summalla oli {}".format(erotus))
@@ -172,7 +197,7 @@ def test_integral():
     print("Erotus F3 oikeaan tulokseen riemannin summalla oli {}".format(erotus))
     
     # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
-    oikea = 1/3 + 3/2
+    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
     testi = trapezoid_int(x, testifun1)
     erotus = np.abs(oikea-testi)
     print("Erotus F1 oikeaan tulokseen trapedoizilla oli {}".format(erotus))
@@ -188,6 +213,22 @@ def test_integral():
     testi = trapezoid_int(x, testifun3)
     erotus = np.abs(oikea-testi)
     print("Erotus F3 oikeaan tulokseen trapedoizilla oli {}".format(erotus))
+    
+    
+    x = np.linspace(0,1, 123)
+    
+    # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
+    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
+    testi = simpson_int(x, testifun1)
+    erotus = np.abs(oikea-testi)
+    print("Erotus F1 oikeaan tulokseen simpsonilla oli {}".format(erotus))
+        
+    # # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
+    # oikea = ( 1/2 * np.exp(x[-1]) - np.cos(x[-1]) ) - ( 1/2 * np.exp(x[0]) - np.cos(x[0]) )
+    # testi = simpson_int(x, testifun3)
+    # erotus = np.abs(oikea-testi)
+    # print("Erotus F3 oikeaan tulokseen simpsonilla oli {}".format(erotus))
+        
     
         
     
