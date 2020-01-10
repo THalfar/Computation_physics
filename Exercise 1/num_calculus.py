@@ -36,23 +36,20 @@ def second_derivate(function, x, dx):
     return jaettava / jakaja
 
 """
-Calculates a numerical integral of the rieman sum integral
+Calculates a numerical integral of the trapezoid integral
 
 Param:
 x       -  a uniformly spaced x-values 
 function -  function thats going to be integrated
 
 Return:
-Rieman sum integral of function
+Trapezoid integral of function
 """
-def riemann_sum(x, function):
+def trapezoid_int(x, function):
     
     # calculate point interval, assuming that x has at least 2 points    
     h = x[1] - x[0]
-    
-    # values x points
-    # values = function(x)
-    
+        
     summa = 0
     
     # Loops through points x and add to the summa the block values
@@ -63,6 +60,22 @@ def riemann_sum(x, function):
     return summa * 0.5
     
     
+def riemann_sum(x, function):
+    
+    # calculate point interval, assuming that x has at least 2 points    
+    h = x[1] - x[0]
+        
+    summa = 0
+    
+    # Loops through points x and add to the summa the block values
+    for i in range(0, len(x)-1):
+        
+        summa += (function(x[i+1]))*h
+        
+    return summa
+    
+    
+
 """
 These are example functions for testing
 """
@@ -135,35 +148,48 @@ def test_second_derivate(x, dx):
     print("Erotus f3'' oikeaan tulokseen oli {}".format(erotus))
    
 
-def test_integral_rieman():
+def test_integral():
     
-    x = np.linspace(0,1, 100)
+    
+    x = np.linspace(0,1, 123)
     
     # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
     oikea = 1/3 + 3/2
     testi = riemann_sum(x, testifun1)
     erotus = np.abs(oikea-testi)
-    print("Erotus F1 oikeaan tulokseen oli {}".format(erotus))
-    
-    x = np.linspace(0,1, 123)
-    
+    print("Erotus F1 oikeaan tulokseen riemannin summalla oli {}".format(erotus))
+        
     # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
     oikea = 1/2 + 1/3 + 42
     testi = riemann_sum(x, testifun2)
     erotus = np.abs(oikea-testi)
-    print("Erotus F2 oikeaan tulokseen oli {}".format(erotus))
+    print("Erotus F2 oikeaan tulokseen riemannin summalla oli {}".format(erotus))
     
     # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
     oikea = ( 1/2 * np.exp(2) - np.cos(1) ) - ( 1/2 * np.exp(0) - np.cos(0) )
     testi = riemann_sum(x, testifun3)
     erotus = np.abs(oikea-testi)
-    print("Erotus F3 oikeaan tulokseen oli {}".format(erotus))
+    print("Erotus F3 oikeaan tulokseen riemannin summalla oli {}".format(erotus))
+    
+    # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
+    oikea = 1/3 + 3/2
+    testi = trapezoid_int(x, testifun1)
+    erotus = np.abs(oikea-testi)
+    print("Erotus F1 oikeaan tulokseen trapedoizilla oli {}".format(erotus))
+        
+    # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
+    oikea = 1/2 + 1/3 + 42
+    testi = trapezoid_int(x, testifun2)
+    erotus = np.abs(oikea-testi)
+    print("Erotus F2 oikeaan tulokseen trapedoizilla oli {}".format(erotus))
+    
+    # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
+    oikea = ( 1/2 * np.exp(2) - np.cos(1) ) - ( 1/2 * np.exp(0) - np.cos(0) )
+    testi = trapezoid_int(x, testifun3)
+    erotus = np.abs(oikea-testi)
+    print("Erotus F3 oikeaan tulokseen trapedoizilla oli {}".format(erotus))
     
         
-    
-    
-    
-    
     
 def main():
     
@@ -173,7 +199,7 @@ def main():
     test_first_derivate(-1.42, 0.001)
     test_second_derivate(-1.42, 0.001)
     
-    test_integral_rieman()
+    test_integral()
     
 if __name__ == "__main__":
     main()
