@@ -225,7 +225,7 @@ def test_second_derivate(x, dx):
     print("f3''({}) dx: {} virhe abs: {}".format(x,dx,erotus))
    
 
-def test_integral(jako, xmin, xmax, blocks = 10, iterations = 100):
+def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
     """
     Testing of numerical integrals
     

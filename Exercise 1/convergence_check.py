@@ -75,31 +75,33 @@ def integral_error_plot(xmin = 0, xmax = 2, dxmin = 1e-3, dxmax = 1e-1, points =
     fig = plt.figure(figsize = (size,size))    
     dx = np.linspace(dxmax, dxmin, points)
     
-    oikeaF2  =  (1/2 * xmax**4 + 1/3 * xmax**3 + 42*xmax ) - ( 1/2 * xmin**4 + 1/3 * xmin**3 + 42*xmin )
+    oikeaF3 = ( 1/2 * np.exp(2*xmax) - np.cos(xmax) ) - ( 1/2 * np.exp(2*xmin) - np.cos(xmin) )
+
     virhe2 = []
     for i in range(points):        
         x = np.linspace(xmin, xmax,  int((xmax-xmin)/dx[i]) )
-        integral = trapezoid_int(x, testifun2)
-        virhe2.append(np.abs(oikeaF2-integral))
-    plt.plot(dx, virhe2, 'ro', label = r'$f(x) = 2x^3 + x^2 + 42 $ ')
+        integral = simpson_int(x, testifun3)
+        virhe2.append(np.abs(oikeaF3-integral))
+    plt.plot(dx, virhe2, 'ro', label = r'$SIMPSON f(x) = exp(2x) + sin(x) $ ')
     
-    
-    oikeaF3 = ( 1/2 * np.exp(2*xmax) - np.cos(xmax) ) - ( 1/2 * np.exp(2*xmin) - np.cos(xmin) )
+        
     virhe3 = []
     for i in range(points):        
         x = np.linspace(xmin, xmax,  int((xmax-xmin)/dx[i]) )
         integral = trapezoid_int(x, testifun3)
         virhe3.append(np.abs(oikeaF3-integral))
-    plt.plot(dx, virhe3, 'xb', label = r'$f(x) = exp(2x) + sin(x) $ ')
+    plt.plot(dx, virhe3, 'xb', label = r'TRAPEZOID $f(x) = exp(2x) + sin(x) $ ')
+
     
     plt.xlabel("dx")
     plt.ylabel("Abs. error")
-    plt.title("Integral error with trapedoiz")
+    plt.title("Integral errors")
     plt.xlim(dx[0], dx[-1])
     plt.xscale('log')
+    plt.yscale('log')
     plt.legend(loc = 0)
     
-    plt.savefig('integraalivirhe.pdf', dpi = 200)
+    plt.savefig('integraalivirhe2.pdf', dpi = 200)
     
 def main():
     
