@@ -99,27 +99,16 @@ def simpson_int(x, function):
     # calculate point interval, assuming that x has at least 2 points    
     h = x[1] - x[0]
 
-    summa = 0
-    
+    summa = 0    
+    # Number of intervals is one shorter than len(x)                   
+    askelia = int( (len(x) -1) / 2  )
         
-    # Number of intervals is one shorter than len(x)
-    if (len(x)-1) % 2 == 0:   # if even intervals                  
-        askelia = int( (len(x) -1) / 2  )
-            
-        for i in range(askelia): 
-            summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
+    for i in range(askelia): # range(askelia) = n-1
+        summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])    
+    summa *= h/3
         
-        summa *= h/3
-            
-    else: 
-        
-        askelia = int( (len(x)-1) / 2  ) # sum odd intervals
-            
-        for i in range(askelia):
-            summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
-                    
-        summa *= h/3
-        # Add the odd tail            
+    # Add the odd tail 
+    if (len(x)-1) % 2 != 0:  
         summa += h/12 * ( -1*function(x[-3]) + 8*function(x[-2]) + 5*function(x[-1]) )
                     
     return summa 
@@ -312,8 +301,9 @@ def main():
     
     test_first_derivate(-1.42, 0.001)
     test_second_derivate(-1.42, 0.001)
-    
+        
     test_integral(115, 0, 2)
+    test_integral(234, 0, 2)
     
 if __name__ == "__main__":
     main()
