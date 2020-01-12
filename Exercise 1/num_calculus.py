@@ -104,20 +104,20 @@ def simpson_int(x, function):
         
     # Number of intervals is one shorter than len(x)
     if (len(x)-1) % 2 == 0:   # if even intervals                  
-        askelia = int( (len(x) -1) / 2 - 1 )
+        askelia = int( (len(x) -1) / 2  )
             
-        for i in range(askelia+1):
+        for i in range(askelia): 
             summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
         
         summa *= h/3
             
     else: 
         
-        askelia = int( (len(x)-2) / 2 -1 ) # sum odd intervals
+        askelia = int( (len(x)-1) / 2  ) # sum odd intervals
             
-        for i in range(askelia+1):
+        for i in range(askelia):
             summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
-            
+                    
         summa *= h/3
         # Add the odd tail            
         summa += h/12 * ( -1*function(x[-3]) + 8*function(x[-2]) + 5*function(x[-1]) )
@@ -313,7 +313,7 @@ def main():
     test_first_derivate(-1.42, 0.001)
     test_second_derivate(-1.42, 0.001)
     
-    test_integral(11, 0, 2)
+    test_integral(115, 0, 2)
     
 if __name__ == "__main__":
     main()
