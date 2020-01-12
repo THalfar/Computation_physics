@@ -58,8 +58,18 @@ def trapezoid_int(x, function):
         summa += (function(x[i]) + function(x[i+1]))*h
         
     return summa * 0.5
+
+"""   
+Calculates numerical integral using rieman sum
+
+Param:    
+x       -  a uniformly spaced x-values 
+function -  function thats going to be integrated
+
+Return:
+Rieman sum integral of function
     
-    
+"""    
 def riemann_sum(x, function):
     
     # calculate point interval, assuming that x has at least 2 points    
@@ -73,7 +83,17 @@ def riemann_sum(x, function):
         summa += (function(x[i+1]))*h
         
     return summa
-    
+
+"""
+Calculates numerical integral using rieman sum
+
+Param:    
+x       -  a uniformly spaced x-values 
+function -  function thats going to be integrated
+
+Return:
+Rieman sum integral of function
+"""    
 def simpson_int(x, function):
     
     # calculate point interval, assuming that x has at least 2 points    
@@ -81,24 +101,59 @@ def simpson_int(x, function):
 
     summa = 0
     
-    # TODO korjaa yksinäiset asiat
-    # Is grid x even or odd
-#    if len(x)%2 == 0:
-#        pariton = False
-#    else:
-#        pariton = True
         
-    askelia = int( (len(x) -1) / 2 - 1 )
+    # Number of intervals is one shorter than len(x)
+    if (len(x)-1) % 2 == 0:   # if even intervals                  
+        askelia = int( (len(x) -1) / 2 - 1 )
+            
+        for i in range(askelia+1):
+            summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
         
-    for i in range(askelia+1):
-        # print(function(x[2*i]))
-        # print(4*function(x[2*i+1]))
-        # print(function(x[2*i+2]))
-        summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
+        summa *= h/3
+            
+    else: 
+        
+        askelia = int( (len(x)-2) / 2 -1 ) # sum odd intervals
+            
+        for i in range(askelia+1):
+            summa += function(x[2*i]) + 4*function(x[2*i+1]) + function(x[2*i+2])
+            
+        summa *= h/3
+        # Add the odd tail            
+        summa += h/12 * ( -1*function(x[-3]) + 8*function(x[-2]) + 5*function(x[-1]) )
+                    
+    return summa 
 
-        
-    return summa * h/3
-        
+"""
+Monte carlo integral
+
+Param:
+fun    -   Function that shall be integrated
+xmin   -   Minimum value of x
+xmax   -   Maximum value of x
+blocks -   How many blocks in monte carlo integration
+iters  -   Number of iterations per block
+
+Return:
+Monte carlo intergral of function
+"""     
+def monte_carlo_integration(fun,xmin,xmax,blocks,iters):
+    
+    block_values=np.zeros((blocks,))
+    L=xmax-xmin
+    
+    for block in range(blocks):
+        for i in range(iters):
+            
+            x = xmin+np.random.rand()*L
+            block_values[block]+=fun(x)
+            
+        block_values[block]/=iters
+            
+    I = L*np.mean(block_values)
+    dI = L*np.std(block_values)/np.sqrt(blocks)
+            
+    return I,dI
 
 
 """
@@ -116,6 +171,7 @@ def testifun3(x): return np.exp(2*x) + np.sin(x)
     
 """
 Testing first derivate with three functions
+
 Param:
 x   -  point where derivate
 dx  -  difference step in derivate
@@ -145,6 +201,7 @@ def test_first_derivate(x, dx):
 
 """
 Testing second derivate with three function
+
 Param:
 x   -  point where derivate
 dx  -  difference step in derivate
@@ -172,66 +229,84 @@ def test_second_derivate(x, dx):
     erotus = np.abs(oikea-testi)
     print("f3''({}) dx: {} virhe abs: {}".format(x,dx,erotus))
    
+"""
+Testing of numerical integrals
 
-def test_integral(jako, xmin, xmax):
-        
-    jako = 11
+Param:
+jako   -   how many points if integral method use these
+xmin   -   minimum x of test integrals
+xmax   -   maximum x of test integrals
+blocks -   number of blocks in monte carlo integral
+iterations - number of iterations per block in monte carlo   
+"""
+def test_integral(jako, xmin, xmax, blocks = 10, iterations = 100):
+                    
     x = np.linspace(xmin,xmax, jako)
+    jako = jako -1 # montako väliä
+    
+    # Right anwers analytically 
     
     # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
-    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
+    oikeaF1 = ( 1/3 * xmax**3 + 3/2 * xmax**2 ) -  ( 1/3 * xmin**3 + 3/2 * xmin**2 ) 
+    
+    # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
+    oikeaF2 = (1/2 * x[-1]**4 + 1/3 * x[-1]**3 + 42*x[-1] ) - ( 1/2 * x[0]**4 + 1/3 * x[0]**3 + 42*x[0] )
+    
+    # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
+    oikeaF3 = ( 1/2 * np.exp(2*x[-1]) - np.cos(x[-1]) ) - ( 1/2 * np.exp(2*x[0]) - np.cos(x[0]) )
+        
     testi = riemann_sum(x, testifun1)
-    erotus = np.abs(oikea-testi)
-    print("Rieman: F1({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
-        
-    # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
-    oikea = (1/2 * x[-1]**4 + 1/3 * x[-1]**3 + 42*x[-1] ) - ( 1/2 * x[0]**4 + 1/3 * x[0]**3 + 42*x[0] )
+    erotus = np.abs(oikeaF1-testi)
+    print("Rieman: F1({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
+                
     testi = riemann_sum(x, testifun2)
-    erotus = np.abs(oikea-testi)
-    print("Rieman: F2({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
+    erotus = np.abs(oikeaF2-testi)
+    print("Rieman: F2({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
     
-    # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
-    oikea = ( 1/2 * np.exp(2*x[-1]) - np.cos(x[-1]) ) - ( 1/2 * np.exp(2*x[0]) - np.cos(x[0]) )
     testi = riemann_sum(x, testifun3)
-    erotus = np.abs(oikea-testi)
-    print("Rieman: F3({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
+    erotus = np.abs(oikeaF3-testi)
+    print("Rieman: F3({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
     
-    # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
-    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
     testi = trapezoid_int(x, testifun1)
-    erotus = np.abs(oikea-testi)
-    print("Trapezoid: F1({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
-        
-    # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
-    oikea = (1/2 * x[-1]**4 + 1/3 * x[-1]**3 + 42*x[-1] ) - ( 1/2 * x[0]**4 + 1/3 * x[0]**3 + 42*x[0] )
+    erotus = np.abs(oikeaF1-testi)
+    print("Trapezoid: F1({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
+            
     testi = trapezoid_int(x, testifun2)
-    erotus = np.abs(oikea-testi)
-    print("Trapezoid: F2({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
-    
-    # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
-    oikea = ( 1/2 * np.exp(2) - np.cos(1) ) - ( 1/2 * np.exp(0) - np.cos(0) )
+    erotus = np.abs(oikeaF2-testi)
+    print("Trapezoid: F2({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
+            
     testi = trapezoid_int(x, testifun3)
-    erotus = np.abs(oikea-testi)
-    print("Trapezoid: F3({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1], jako , erotus))
-        
-    # f1(x) = x^2 + 3x -> 1/3 * x^3 + 3/2 * x^2
-    oikea = ( 1/3 * x[-1]**3 + 3/2 * x[-1]**2 ) -  ( 1/3 * x[0]**3 + 3/2 * x[0]**2 ) 
+    erotus = np.abs(oikeaF3-testi)
+    print("Trapezoid: F3({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax, jako , erotus))
+            
     testi = simpson_int(x, testifun1)
-    erotus = np.abs(oikea-testi)
-    print("Simpson: F1({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1],jako, erotus))
-    
-    # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
-    oikea = (1/2 * x[-1]**4 + 1/3 * x[-1]**3 + 42*x[-1] ) - ( 1/2 * x[0]**4 + 1/3 * x[0]**3 + 42*x[0] )
-    testi = simpson_int(x, testifun2)
-    erotus = np.abs(oikea-testi)
-    print("Simpson: F2({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1],jako, erotus))
-       
-    # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
-    oikea = ( 1/2 * np.exp(2*x[-1]) - np.cos(x[-1]) ) - ( 1/2 * np.exp(2*x[0]) - np.cos(x[0]) )
-    testi = simpson_int(x, testifun3)
-    erotus = np.abs(oikea-testi)
-    print("Simpson: F3({} , {}) jako: {} virhe abs.: {}".format(x[0], x[-1],jako, erotus))
+    erotus = np.abs(oikeaF1-testi)
+    print("Simpson: F1({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax,jako, erotus))
         
+    testi = simpson_int(x, testifun2)
+    erotus = np.abs(oikeaF2-testi)
+    print("Simpson: F2({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax,jako, erotus))
+               
+    testi = simpson_int(x, testifun3)
+    erotus = np.abs(oikeaF3-testi)
+    print("Simpson: F3({} , {}) jako: {} virhe abs.: {}".format(xmin, xmax,jako, erotus))
+        
+    testi = monte_carlo_integration(testifun1, xmin, xmax, blocks, iterations)
+    erotus = np.abs(oikeaF1- testi[0])
+    print("Monte carlo: F1({} , {}) blocks: {} iter : {} virhe abs.: {}".format(xmin, xmax,blocks, iterations, erotus))
+    
+    testi = monte_carlo_integration(testifun2, xmin, xmax, blocks, iterations)
+    erotus = np.abs(oikeaF2- testi[0])
+    print("Monte carlo: F2({} , {}) blocks: {} iter : {} virhe abs.: {}".format(xmin, xmax,blocks, iterations, erotus))
+    
+    testi = monte_carlo_integration(testifun3, xmin, xmax, blocks, iterations)
+    erotus = np.abs(oikeaF3- testi[0])
+    print("Monte carlo: F3({} , {}) blocks: {} iter : {} virhe abs.: {}".format(xmin, xmax,blocks, iterations, erotus))
+    
+    
+    
+    
+    
         
 def main():
     
@@ -241,7 +316,7 @@ def main():
     test_first_derivate(-1.42, 0.001)
     test_second_derivate(-1.42, 0.001)
     
-    test_integral(41, 0, 1)
+    test_integral(11, 0, 2)
     
 if __name__ == "__main__":
     main()
