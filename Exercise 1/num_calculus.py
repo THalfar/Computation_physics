@@ -138,20 +138,21 @@ Return:
 Monte carlo intergral of function
 """     
 def monte_carlo_integration(fun,xmin,xmax,blocks,iters):
-    
-    block_values=np.zeros((blocks,))
+    # Set blocks and Lenght of each
+    block_values=np.zeros((blocks,)) 
     L=xmax-xmin
     
+    # Iterate through blocks and calculate function values at random points in block
     for block in range(blocks):
         for i in range(iters):
             
             x = xmin+np.random.rand()*L
-            block_values[block]+=fun(x)
+            block_values[block]+=fun(x) # sum in block the values at interval random points
             
-        block_values[block]/=iters
+        block_values[block]/=iters 
             
-    I = L*np.mean(block_values)
-    dI = L*np.std(block_values)/np.sqrt(blocks)
+    I = L*np.mean(block_values) # use mean of block value to calculate integral
+    dI = L*np.std(block_values)/np.sqrt(blocks) # take std. to measure statistical error
             
     return I,dI
 
@@ -250,10 +251,10 @@ def test_integral(jako, xmin, xmax, blocks = 10, iterations = 100):
     oikeaF1 = ( 1/3 * xmax**3 + 3/2 * xmax**2 ) -  ( 1/3 * xmin**3 + 3/2 * xmin**2 ) 
     
     # f2(x) = 2x^3+xˆ2+42 -> 1/2 * x^4 + 1/3 x^3 + 42x 
-    oikeaF2 = (1/2 * x[-1]**4 + 1/3 * x[-1]**3 + 42*x[-1] ) - ( 1/2 * x[0]**4 + 1/3 * x[0]**3 + 42*x[0] )
+    oikeaF2 = (1/2 * xmax**4 + 1/3 * xmax**3 + 42*xmax ) - ( 1/2 * xmin**4 + 1/3 * xmin**3 + 42*xmin )
     
     # f3(x) = exp(2x) + sin(x) -> 1/2 exp(2x) - cos(x)
-    oikeaF3 = ( 1/2 * np.exp(2*x[-1]) - np.cos(x[-1]) ) - ( 1/2 * np.exp(2*x[0]) - np.cos(x[0]) )
+    oikeaF3 = ( 1/2 * np.exp(2*xmax) - np.cos(xmax) ) - ( 1/2 * np.exp(2*xmin) - np.cos(xmin) )
         
     testi = riemann_sum(x, testifun1)
     erotus = np.abs(oikeaF1-testi)
@@ -302,10 +303,6 @@ def test_integral(jako, xmin, xmax, blocks = 10, iterations = 100):
     testi = monte_carlo_integration(testifun3, xmin, xmax, blocks, iterations)
     erotus = np.abs(oikeaF3- testi[0])
     print("Monte carlo: F3({} , {}) blocks: {} iter : {} virhe abs.: {}".format(xmin, xmax,blocks, iterations, erotus))
-    
-    
-    
-    
     
         
 def main():
