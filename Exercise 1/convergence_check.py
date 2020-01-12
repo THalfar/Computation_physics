@@ -2,20 +2,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 from num_calculus import *
 
-"""
-Plot derivate error 
 
-Param:
-x       -   point where calculate derivate
-dxmax   -   dx maximum value
-dxmin   -   dx minimum value
-points  -   how many points in plot
-size    -   figure size
-
-Return:
-None
-"""
-def derivate_error_plot(x, dxmax=1, dxmin=1e-6, points=50, size = 15):
+def derivate_error_plot(x, dxmax=1, dxmin=1e-3, points=123, size = 15):
+    """
+    Plot derivate error 
+    
+    Param:
+    x       -   point where calculate derivate
+    dxmax   -   dx maximum value
+    dxmin   -   dx minimum value
+    points  -   how many points in plot
+    size    -   figure size
+    
+    Return:
+    None
+    """
                 
     fig, ax = plt.subplots(2, 1, figsize = (size,size))    
     dx = np.linspace(dxmax,dxmin, points)
@@ -30,6 +31,7 @@ def derivate_error_plot(x, dxmax=1, dxmin=1e-6, points=50, size = 15):
     ax[0].plot(dx, virhe2, 'ro' ,label= r'$f(x) = 2x^3 + x^2 + 42 $ ')
     ax[0].plot(dx, virhe3, 'bx' ,label= r'$f(x) = exp(2x) + sin(x) $ ')
     ax[0].set_xlim(dx[0], dx[-1])
+    ax[0].set_xscale('log')    
     ax[0].legend(loc=0)
     ax[0].set_xlabel("dx")
     ax[0].set_ylabel("Abs. error")
@@ -45,6 +47,7 @@ def derivate_error_plot(x, dxmax=1, dxmin=1e-6, points=50, size = 15):
     ax[1].plot(dx, virhe2, 'ro' ,label= r'$f(x) = 2x^3 + x^2 + 42 $ ')
     ax[1].plot(dx, virhe3, 'bx' ,label= r'$f(x) = exp(2x) + sin(x) $ ')
     ax[1].set_xlim(dx[0], dx[-1])
+    ax[1].set_xscale('log')
     ax[1].legend(loc=0)
     ax[1].set_xlabel("dx")
     ax[1].set_ylabel("Abs. error")
@@ -52,21 +55,22 @@ def derivate_error_plot(x, dxmax=1, dxmin=1e-6, points=50, size = 15):
         
     fig.savefig('derivaatta_virhe.pdf', dpi = 200)
     
-"""
-Plot integral error for trapezoid 
 
-Param:
-xmin    -   min x value for integral starting point
-xmax    -   max x value for integral ending point
-dxmin   -   minimum value for dx
-dxmax   -   maximum value for dx
-points  -   how many grid points
-size    -   figure size
-
-Return:
-None
-"""    
-def integral_error_plot(xmin = 0, xmax = 2, dxmin = 1e-4, dxmax = 1e-1, points = 30, size = 15):
+def integral_error_plot(xmin = 0, xmax = 2, dxmin = 1e-3, dxmax = 1e-1, points = 123, size = 15):
+    """
+    Plot integral error for trapezoid 
+    
+    Param:
+    xmin    -   min x value for integral starting point
+    xmax    -   max x value for integral ending point
+    dxmin   -   minimum value for dx
+    dxmax   -   maximum value for dx
+    points  -   how many grid points
+    size    -   figure size
+    
+    Return:
+    None
+    """    
     
     fig = plt.figure(figsize = (size,size))    
     dx = np.linspace(dxmax, dxmin, points)
@@ -92,6 +96,7 @@ def integral_error_plot(xmin = 0, xmax = 2, dxmin = 1e-4, dxmax = 1e-1, points =
     plt.ylabel("Abs. error")
     plt.title("Integral error with trapedoiz")
     plt.xlim(dx[0], dx[-1])
+    plt.xscale('log')
     plt.legend(loc = 0)
     
     plt.savefig('integraalivirhe.pdf', dpi = 200)
