@@ -5,12 +5,12 @@ def first_derivate(function, x, dx):
     Calculates first derivate 
     
     Param:
-    function  -  Function that shall be derivated
-    x         -  Where derivate
-    dx        -  Difference step in derivate calculation  
+        function  -  Function that shall be derivated
+        x         -  Where derivate
+        dx        -  Difference step in derivate calculation  
     
     Return:
-    Value of first derivate
+        Value of first derivate
     """
     
     jakaja = 2*dx
@@ -24,12 +24,12 @@ def second_derivate(function, x, dx):
     Calculates second derivate 
     
     Param:
-    function  -  Function that shall be derivated
-    x         -  Where derivate
-    dx        -  Difference step in derivate calculation  
+        function  -  Function that shall be derivated
+        x         -  Where derivate
+        dx        -  Difference step in derivate calculation  
     
     Return: 
-    Value of second derivate    
+        Value of second derivate    
     """
     
     jakaja = dx**2
@@ -43,11 +43,11 @@ def trapezoid_int(x, function):
     Calculates a numerical integral of the trapezoid integral
     
     Param:
-    x       -  a uniformly spaced x-values 
-    function -  function thats going to be integrated
+        x       -  a uniformly spaced x-values 
+        function -  function thats going to be integrated
     
     Return:
-    Trapezoid integral of function
+        Trapezoid integral of function
     """
     
     # calculate point interval, assuming that x has at least 2 points    
@@ -68,11 +68,11 @@ def riemann_sum(x, function):
     Calculates numerical integral using rieman sum
     
     Param:    
-    x       -  a uniformly spaced x-values 
-    function -  function thats going to be integrated
+        x       -  a uniformly spaced x-values 
+        function -  function thats going to be integrated
     
     Return:
-    Rieman sum integral of function 
+        Rieman sum integral of function 
     """   
     
     # calculate point interval, assuming that x has at least 2 points    
@@ -92,10 +92,10 @@ def simpson_int(x, function):
     """
     Calculates numerical integral using simpson rule
     Param:    
-    x       -  a uniformly spaced x-values 
-    function -  function thats going to be integrated
+        x       -  a uniformly spaced x-values 
+        function -  function thats going to be integrated
     Return:
-    simpson integral of function
+        simpson integral of function
     """
   
     
@@ -122,14 +122,14 @@ def monte_carlo_integration(fun,xmin,xmax,blocks,iters):
     Monte carlo integral
     
     Param:
-    fun    -   Function that shall be integrated
-    xmin   -   Minimum value of x
-    xmax   -   Maximum value of x
-    blocks -   How many blocks in monte carlo integration
-    iters  -   Number of iterations per block
+        fun    -   Function that shall be integrated
+        xmin   -   Minimum value of x
+        xmax   -   Maximum value of x
+        blocks -   How many blocks in monte carlo integration
+        iters  -   Number of iterations per block
     
     Return:
-    Monte carlo intergral of function
+        Monte carlo intergral of function
     """     
     # Set blocks and Lenght of each
     block_values=np.zeros((blocks,)) 
@@ -199,11 +199,11 @@ def test_second_derivate(x, dx):
     Testing second derivate with three function
     
     Param:
-    x   -  point where derivate
-    dx  -  difference step in derivate
+        x   -  point where derivate
+        dx  -  difference step in derivate
     
     Return:
-    None
+        None
     """
         
     # f1(x) = x^2 + 3x -> 2
@@ -230,11 +230,13 @@ def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
     Testing of numerical integrals
     
     Param:
-    jako   -   how many points if integral method use these
-    xmin   -   minimum x of test integrals
-    xmax   -   maximum x of test integrals
-    blocks -   number of blocks in monte carlo integral
-    iterations - number of iterations per block in monte carlo   
+        jako   -   how many points if integral method use these
+        xmin   -   minimum x of test integrals
+        xmax   -   maximum x of test integrals
+        blocks -   number of blocks in monte carlo integral
+        iterations - number of iterations per block in monte carlo   
+    Return:
+        None 
     """
                     
     x = np.linspace(xmin,xmax, jako)
@@ -311,6 +313,9 @@ def main():
     test_integral(13, 0, 2)    
     test_integral(115, 0, 2)
     test_integral(234, 0, 2)
+    
+    
+    
         
 if __name__ == "__main__":
     main()
