@@ -312,7 +312,7 @@ def main():
     
     test_integral(13, 0, 2)    
     test_integral(115, 0, 2)
-    test_integral(234, 0, 2)
+    test_integral(235, 0, 3)
     
     
     
