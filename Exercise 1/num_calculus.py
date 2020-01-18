@@ -304,16 +304,31 @@ def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
         
 def main():
     
-    test_first_derivate(1.42, 0.0001)
-    test_second_derivate(1.42, 0.0001)
     
-    test_first_derivate(-1.42, 0.001)
-    test_second_derivate(-1.42, 0.001)
+    # test_first_derivate(1.42, 0.0001)
+    # test_second_derivate(1.42, 0.0001)
     
-    test_integral(13, 0, 2)    
-    test_integral(115, 0, 2)
-    test_integral(235, 0, 3)
+    # test_first_derivate(-1.42, 0.001)
+    # test_second_derivate(-1.42, 0.001)
     
+    # test_integral(13, 0, 2)    
+    # test_integral(115, 0, 2)
+    # test_integral(235, 0, 3)
+    
+    testi = np.zeros(0)
+    
+    for i in range(6):
+        uusi = np.linspace(i,i+1,2**i*10)
+        testi = np.concatenate((testi,uusi[:-1]), axis = 0)
+    testi = np.concatenate((testi,[6]), axis = 0)
+    
+    print(testi)
+    print(len(testi))
+    from scipy import special
+    
+    
+    
+    print(special.sici(1)[0])
     
     
         
