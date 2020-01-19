@@ -303,12 +303,12 @@ def test_intViides():
               
     for i in range(5):
         
-        ra = -2*np.random.rand(3)+2
-        rb = -2*np.random.rand(3)+2                   
+        ra = -4*np.random.rand(3)+2
+        rb = -4*np.random.rand(3)+2                   
         R = np.linalg.norm(ra-rb)        
         oikea = (1- (1+R)*np.exp(-2*R))/R
         
-        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e3), 10)
+        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e4), 2)
         print("ra: {} rb: {} R: {}".format(ra,rb,R))
         print("Oikea : {}".format(oikea))
         print("Carlo : {}".format(tulos) )        

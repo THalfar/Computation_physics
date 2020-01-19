@@ -10,12 +10,11 @@ By Ilkka Kylanpaa on January 2019
 """
 
 from numpy import *
-from matplotlib.pyplot import *
+import matplotlib.pyplot as plt
 
-
-"""
-Add basis functions p1,p2,q1,q2 here
-"""
+TESTPOINTS = int(1e5)
+TESTPOINTS2D = 500
+TESTPOINTS3D = 75
 
 
 def init_1d_spline(x,f,h):
@@ -162,6 +161,12 @@ class spline:
         else:
             print('Either dims is missing or specific dims is not available')
         #end if
+    
+    def p1(self,t): return (1+2*t)*(t-1)**2
+    def p2(self,t): return t**2 * (3-2*t)
+    def q1(self,t): return t*(t-1)**2
+    def q2(self,t): return t**2 * (t-1)
+        
             
     def eval1d(self,x):
         if isscalar(x):
@@ -174,8 +179,8 @@ class spline:
             if i==N:
                 f[ii]=self.f[i]
             else:
-                t=(val-self.x[i])/self.hx[i]
-                f[ii]=self.f[i]*p1(t)+self.f[i+1]*p2(t)+self.hx[i]*(self.fx[i]*q1(t)+self.fx[i+1]*q2(t))
+                t=(val-self.x[i])/self.hx[i]                
+                f[ii]=self.f[i]*self.p1(t)+self.f[i+1]*self.p2(t)+self.hx[i]*(self.fx[i]*self.q1(t)+self.fx[i+1]*self.q2(t))
             ii+=1
 
         return f
@@ -202,8 +207,8 @@ class spline:
                     j-=1
                 u = (valx-self.x[i])/self.hx[i]
                 v = (valy-self.y[j])/self.hy[j]
-                pu = array([p1(u),p2(u),self.hx[i]*q1(u),self.hx[i]*q2(u)])
-                pv = array([p1(v),p2(v),self.hy[j]*q1(v),self.hy[j]*q2(v)])
+                pu = array([self.p1(u),self.p2(u),self.hx[i]*self.q1(u),self.hx[i]*self.q2(u)])
+                pv = array([self.p1(v),self.p2(v),self.hy[j]*self.q1(v),self.hy[j]*self.q2(v)])
                 A[0,:]=array([self.f[i,j],self.f[i,j+1],self.fy[i,j],self.fy[i,j+1]])
                 A[1,:]=array([self.f[i+1,j],self.f[i+1,j+1],self.fy[i+1,j],self.fy[i+1,j+1]])
                 A[2,:]=array([self.fx[i,j],self.fx[i,j+1],self.fxy[i,j],self.fxy[i,j+1]])
@@ -246,9 +251,9 @@ class spline:
                     u = (valx-self.x[i])/self.hx[i]
                     v = (valy-self.y[j])/self.hy[j]
                     t = (valz-self.z[k])/self.hz[k]
-                    pu = array([p1(u),p2(u),self.hx[i]*q1(u),self.hx[i]*q2(u)])
-                    pv = array([p1(v),p2(v),self.hy[j]*q1(v),self.hy[j]*q2(v)])
-                    pt = array([p1(t),p2(t),self.hz[k]*q1(t),self.hz[k]*q2(t)])
+                    pu = array([self.p1(u),self.p2(u),self.hx[i]*self.q1(u),self.hx[i]*self.q2(u)])
+                    pv = array([self.p1(v),self.p2(v),self.hy[j]*self.q1(v),self.hy[j]*self.q2(v)])
+                    pt = array([self.p1(t),self.p2(t),self.hz[k]*self.q1(t),self.hz[k]*self.q2(t)])
                     B[0,:]=array([self.f[i,j,k],self.f[i,j,k+1],self.fz[i,j,k],self.fz[i,j,k+1]])
                     B[1,:]=array([self.f[i+1,j,k],self.f[i+1,j,k+1],self.fz[i+1,j,k],self.fz[i+1,j,k+1]])
                     B[2,:]=array([self.fx[i,j,k],self.fx[i,j,k+1],self.fxz[i,j,k],self.fxz[i,j,k+1]])
@@ -279,64 +284,166 @@ class spline:
     #end eval3d
 #end class spline
 
-
+# Plots an error curve for 1D spline interpolation case
+def test1D():
     
+    # Testing function for 1D case
+    def fun(x): return x**3 - 2*x
+            
+    test_x = linspace(-2,2,TESTPOINTS)
+    true_y = fun(test_x)
+    
+    errors = []
+    points = geomspace(10,1e3, 10, dtype = int)
+    for point in points:
+        
+        x = linspace(-2,2, point)
+        y = fun(x)
+        splin1d = spline(x=x, f=y, dims=1)        
+        test_lin = splin1d.eval1d(test_x)        
+        errors.append(mean(abs(test_lin - true_y)))
+        
+    # Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x) = x^3-2x')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Spline 1D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('spline_inter_1D.pdf', dpi = 200)
+    
+# Plots an error curve for 2D spline interpolation case    
+def test2D():
+    
+    def fun(x,y): return y*2**(x+y)
+    
+    x_test = linspace(-2,2,TESTPOINTS2D)
+    y_test = linspace(-2,2,TESTPOINTS2D)
+    X,Y = meshgrid(x_test, y_test)
+    true_Z = fun(X,Y)
+        
+    errors = []
+    points = geomspace(3,100,10, dtype=int)
+    for point in points:
+        x = linspace(-2,2,point)
+        y = linspace(-2,2,point)
+        X,Y = meshgrid(x,y)
+        Z = fun(X,Y)
+    
+        splin2d = spline(x=x, y=y, f=Z, dims = 2)
+        test_Z = splin2d.eval2d(x_test, y_test)
+        errors.append(mean(abs(test_Z - true_Z)))
+    #Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x,y) = y*2^(x+y')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Spline 2D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('spline_inter_2D.pdf', dpi = 200)    
+    
+# Plots an error curve for 3D spline interpolation case    
+def test3D():
+
+    def fun(x,y,z): return exp(sqrt(x**2+y**2+z**2))
+    
+    x_test = linspace(-2,2,TESTPOINTS3D)
+    y_test = linspace(-2,2,TESTPOINTS3D)
+    z_test = linspace(-2,2,TESTPOINTS3D)
+    X,Y,Z = meshgrid(x_test, y_test, z_test)
+    true_F = fun(X,Y,Z)
+    
+    errors = []
+    points = geomspace(3,30,10,dtype = int)
+    for point in points:
+        x = linspace(-2,2,point)
+        y = linspace(-2,2,point)
+        z = linspace(-2,2,point)
+        X,Y,Z = meshgrid(x,y,z)
+        F = fun(X,Y,Z)
+        
+        splin3d = spline(x=x,y=y,z=z,f=F,dims=3)
+        test_F = splin3d.eval3d(x_test,y_test,z_test)
+        errors.append(mean(abs(true_F - test_F)))
+       #Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x,y,z) = exp(x^2+y^2+z^2)')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Spline 3D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('spline_inter_3D.pdf', dpi = 200)
+    
+          
 def main():
-
-    # 1d example
-    x=linspace(0.,2.*pi,20)
-    y=sin(x)
-    spl1d=spline(x=x,f=y,dims=1)
-    xx=linspace(0.,2.*pi,100)
-    figure()
-    # function
-    plot(xx,spl1d.eval1d(xx))
-    plot(x,y,'o',xx,sin(xx),'r--')
-    title('function')
     
-    # 2d example
-    fig=figure()
-    ax=fig.add_subplot(121)
-    x=linspace(0.0,3.0,11)
-    y=linspace(0.0,3.0,11)
-    X,Y = meshgrid(x,y)
-    Z = (X+Y)*exp(-1.0*(X*X+Y*Y))
-    ax.pcolor(X,Y,Z)
-    ax.set_title('original')
+    # test1D()
+    # test2D()
+    test3D()
 
-    spl2d=spline(x=x,y=y,f=Z,dims=2)
-    #figure()
-    ax2=fig.add_subplot(122)
-    x=linspace(0.0,3.0,51)
-    y=linspace(0.0,3.0,51)
-    X,Y = meshgrid(x,y)
-    Z = spl2d.eval2d(x,y)
-    ax2.pcolor(X,Y,Z)
-    ax2.set_title('interpolated')
+    # # 1d example
+    # x=linspace(0.,2.*pi,20)
+    # y=sin(x)
+    # spl1d=spline(x=x,f=y,dims=1)
+    # xx=linspace(0.,2.*pi,100)
+    # figure()
+    # # function
+    # plot(xx,spl1d.eval1d(xx))
+    # plot(x,y,'o',xx,sin(xx),'r--')
+    # title('function')
+    
+    # # 2d example
+    # fig=figure()
+    # ax=fig.add_subplot(121)
+    # x=linspace(0.0,3.0,11)
+    # y=linspace(0.0,3.0,11)
+    # X,Y = meshgrid(x,y)
+    # Z = (X+Y)*exp(-1.0*(X*X+Y*Y))
+    # ax.pcolor(X,Y,Z)
+    # ax.set_title('original')
 
-    # 3d example
-    x=linspace(0.0,3.0,10)
-    y=linspace(0.0,3.0,10)
-    z=linspace(0.0,3.0,10)
-    X,Y,Z = meshgrid(x,y,z)
-    F = (X+Y+Z)*exp(-1.0*(X*X+Y*Y+Z*Z))
-    X,Y= meshgrid(x,y)
-    fig3d=figure()
-    ax=fig3d.add_subplot(121)
-    ax.pcolor(X,Y,F[...,int(len(z)/2)])
-    ax.set_title('original')
+    # spl2d=spline(x=x,y=y,f=Z,dims=2)
+    # #figure()
+    # ax2=fig.add_subplot(122)
+    # x=linspace(0.0,3.0,51)
+    # y=linspace(0.0,3.0,51)
+    # X,Y = meshgrid(x,y)
+    # Z = spl2d.eval2d(x,y)
+    # ax2.pcolor(X,Y,Z)
+    # ax2.set_title('interpolated')
 
-    spl3d=spline(x=x,y=y,z=z,f=F,dims=3)  
-    x=linspace(0.0,3.0,50)
-    y=linspace(0.0,3.0,50)
-    z=linspace(0.0,3.0,50)
-    X,Y= meshgrid(x,y)
-    ax2=fig3d.add_subplot(122)
-    F=spl3d.eval3d(x,y,z)
-    ax2.pcolor(X,Y,F[...,int(len(z)/2)])
-    ax2.set_title('interpolated')
+    # # 3d example
+    # x=linspace(0.0,3.0,10)
+    # y=linspace(0.0,3.0,10)
+    # z=linspace(0.0,3.0,10)
+    # X,Y,Z = meshgrid(x,y,z)
+    # F = (X+Y+Z)*exp(-1.0*(X*X+Y*Y+Z*Z))
+    # X,Y= meshgrid(x,y)
+    # fig3d=figure()
+    # ax=fig3d.add_subplot(121)
+    # ax.pcolor(X,Y,F[...,int(len(z)/2)])
+    # ax.set_title('original')
 
-    show()
+    # spl3d=spline(x=x,y=y,z=z,f=F,dims=3)  
+    # x=linspace(0.0,3.0,50)
+    # y=linspace(0.0,3.0,50)
+    # z=linspace(0.0,3.0,50)
+    # X,Y= meshgrid(x,y)
+    # ax2=fig3d.add_subplot(122)
+    # F=spl3d.eval3d(x,y,z)
+    # ax2.pcolor(X,Y,F[...,int(len(z)/2)])
+    # ax2.set_title('interpolated')
+
+    # show()
 #end main
     
 if __name__=="__main__":

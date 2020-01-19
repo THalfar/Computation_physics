@@ -13,10 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-
-"""
-Add basis functions l1 and l2 here
-"""
+TESTPOINTS = int(1e5)
+TESTPOINTS2D = 500
+TESTPOINTS3D = 75
 
 class linear_interp:
 
@@ -42,7 +41,13 @@ class linear_interp:
             self.hz=np.diff(self.z)
         else:
             print('Either dims is missing or specific dims is not available')
-      
+    
+    def l1(self, t):
+        return 1-t
+    
+    def l2(self, t):
+        return t
+        
     def eval1d(self,x):
         if np.isscalar(x):
             x=np.array([x])
@@ -55,7 +60,7 @@ class linear_interp:
                 f[ii]=self.f[i]
             else:
                 t=(val-self.x[i])/self.hx[i]
-                f[ii]=self.f[i]*l1(t)+self.f[i+1]*l2(t)
+                f[ii]=self.f[i]*self.l1(t)+self.f[i+1]*self.l2(t)
             ii+=1
         return f
 
@@ -80,8 +85,8 @@ class linear_interp:
                     j-=1
                 tx = (valx-self.x[i])/self.hx[i]
                 ty = (valy-self.y[j])/self.hy[j]
-                ptx = np.array([l1(tx),l2(tx)])
-                pty = np.array([l1(ty),l2(ty)])
+                ptx = np.array([self.l1(tx),self.l2(tx)])
+                pty = np.array([self.l1(ty),self.l2(ty)])
                 A[0,:]=np.array([self.f[i,j],self.f[i,j+1]])
                 A[1,:]=np.array([self.f[i+1,j],self.f[i+1,j+1]])
                 f[ii,jj]=np.dot(ptx,np.dot(A,pty))
@@ -121,9 +126,9 @@ class linear_interp:
                     tx = (valx-self.x[i])/self.hx[i]
                     ty = (valy-self.y[j])/self.hy[j]
                     tz = (valz-self.z[k])/self.hz[k]
-                    ptx = np.array([l1(tx),l2(tx)])
-                    pty = np.array([l1(ty),l2(ty)])
-                    ptz = np.array([l1(tz),l2(tz)])
+                    ptx = np.array([self.l1(tx),self.l2(tx)])
+                    pty = np.array([self.l1(ty),self.l2(ty)])
+                    ptz = np.array([self.l1(tz),self.l2(tz)])
                     B[0,:]=np.array([self.f[i,j,k],self.f[i,j,k+1]])
                     B[1,:]=np.array([self.f[i+1,j,k],self.f[i+1,j,k+1]])
                     A[:,0]=np.dot(B,ptz)
@@ -138,67 +143,113 @@ class linear_interp:
     #end eval3d
 # end class linear interp
 
+# Plots an error curve for 1D linear interpolation case
+def test1D():
+    
+    # Testing function for 1D case
+    def fun(x): return x**3 - 2*x
+        
+    
+    test_x = np.linspace(-2,2,TESTPOINTS)
+    true_y = fun(test_x)
+    
+    errors = []
+    points = np.geomspace(10,1e3, 10, dtype = int)
+    for point in points:
+        
+        x = np.linspace(-2,2, point)
+        y = fun(x)
+        lin1d = linear_interp(x=x, f=y, dims=1)
+        
+        test_lin = lin1d.eval1d(test_x)
+        
+        errors.append(np.mean(np.abs(test_lin - true_y)))
+    # Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x) = x^3-2x')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Linear 1D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('lin_inter_1D.pdf', dpi = 200)
+
+# Plots an error curve for 2D linear interpolation case    
+def test2D():
+    
+    def fun(x,y): return y*2**(x+y)
+    
+    x_test = np.linspace(-2,2,TESTPOINTS2D)
+    y_test = np.linspace(-2,2,TESTPOINTS2D)
+    X,Y = np.meshgrid(x_test, y_test)
+    true_Z = fun(X,Y)
+        
+    errors = []
+    points = np.geomspace(3,100,10, dtype=int)
+    for point in points:
+        x = np.linspace(-2,2,point)
+        y = np.linspace(-2,2,point)
+        X,Y = np.meshgrid(x,y)
+        Z = fun(X,Y)
+    
+        lin2d = linear_interp(x=x, y=y, f=Z, dims = 2)
+        test_Z = lin2d.eval2d(x_test, y_test)
+        errors.append(np.mean(np.abs(test_Z - true_Z)))
+    #Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x,y) = y*2^(x+y')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Linear 2D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('lin_inter_2D.pdf', dpi = 200)
+
+# Plots an error curve for 3D linear interpolation case    
+def test3D():
+
+    def fun(x,y,z): return np.exp(np.sqrt(x**2+y**2+z**2))
+    
+    x_test = np.linspace(-2,2,TESTPOINTS3D)
+    y_test = np.linspace(-2,2,TESTPOINTS3D)
+    z_test = np.linspace(-2,2,TESTPOINTS3D)
+    X,Y,Z = np.meshgrid(x_test, y_test, z_test)
+    true_F = fun(X,Y,Z)
+    
+    errors = []
+    points = np.geomspace(3,30,10,dtype = int)
+    for point in points:
+        x = np.linspace(-2,2,point)
+        y = np.linspace(-2,2,point)
+        z = np.linspace(-2,2,point)
+        X,Y,Z = np.meshgrid(x,y,z)
+        F = fun(X,Y,Z)
+        
+        lin3d = linear_interp(x=x,y=y,z=z,f=F,dims=3)
+        test_F = lin3d.eval3d(x_test,y_test,z_test)
+        errors.append(np.mean(np.abs(true_F - test_F)))
+       #Plotting error
+    fig = plt.figure()      
+    plt.plot(points,errors, 'or', label = r'f(x,y,z) = exp(x^2+y^2+z^2)')               
+    plt.xlabel("Interpolation points")
+    plt.ylabel("Mean abs. error")        
+    plt.title("Linear 3D interpolation error")    
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    plt.show()
+    fig.savefig('lin_inter_3D.pdf', dpi = 200)
+    
+   
     
 def main():
-
-    fig1d = plt.figure()
-    ax1d = fig1d.add_subplot(111)
-
-    # 1d example
-    x=np.linspace(0.,2.*np.pi,10)
-    y=np.sin(x)
-    lin1d=linear_interp(x=x,f=y,dims=1)
-    xx=np.linspace(0.,2.*np.pi,100)
-    ax1d.plot(xx,lin1d.eval1d(xx))
-    ax1d.plot(x,y,'o',xx,np.sin(xx),'r--')
-    ax1d.set_title('function')
-
-    # 2d example
-    fig2d = plt.figure()
-    ax2d = fig2d.add_subplot(221, projection='3d')
-    ax2d2 = fig2d.add_subplot(222, projection='3d')
-    ax2d3 = fig2d.add_subplot(223)
-    ax2d4 = fig2d.add_subplot(224)
-
-    x=np.linspace(-2.0,2.0,11)
-    y=np.linspace(-2.0,2.0,11)
-    X,Y = np.meshgrid(x,y)
-    Z = X*np.exp(-1.0*(X*X+Y*Y))
-    ax2d.plot_wireframe(X,Y,Z)
-    ax2d3.pcolor(X,Y,Z)
-    #ax2d3.contourf(X,Y,Z)
-
-    lin2d=linear_interp(x=x,y=y,f=Z,dims=2)
-    x=np.linspace(-2.0,2.0,51)
-    y=np.linspace(-2.0,2.0,51)
-    X,Y = np.meshgrid(x,y)
-    Z = lin2d.eval2d(x,y)
-     
-    ax2d2.plot_wireframe(X,Y,Z)
-    ax2d4.pcolor(X,Y,Z)
-    
-    # 3d example
-    x=np.linspace(0.0,3.0,10)
-    y=np.linspace(0.0,3.0,10)
-    z=np.linspace(0.0,3.0,10)
-    X,Y,Z = np.meshgrid(x,y,z)
-    F = (X+Y+Z)*np.exp(-1.0*(X*X+Y*Y+Z*Z))
-    X,Y= np.meshgrid(x,y)
-    fig3d=plt.figure()
-    ax=fig3d.add_subplot(121)
-    ax.pcolor(X,Y,F[...,int(len(z)/2)])
-    lin3d=linear_interp(x=x,y=y,z=z,f=F,dims=3)
-    
-    x=np.linspace(0.0,3.0,50)
-    y=np.linspace(0.0,3.0,50)
-    z=np.linspace(0.0,3.0,50)
-    X,Y= np.meshgrid(x,y)
-    F=lin3d.eval3d(x,y,z)
-    ax2=fig3d.add_subplot(122)
-    ax2.pcolor(X,Y,F[...,int(len(z)/2)])
-
-    plt.show()
-#end main
+    test1D()
+    test2D()
+    test3D()
     
 if __name__=="__main__":
     main()

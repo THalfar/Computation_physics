@@ -149,7 +149,46 @@ def monte_carlo_integration(fun,xmin,xmax,blocks,iters):
             
     return I,dI
 
+def gradient(fun, point, h):
+    """
+    Calculates gradient at point assuming function have same input as
+    dimension of point
 
+    Parameters
+    ----------
+    fun : function
+        function which gradient need calculating
+    point : np.array
+        point where calculate gradient
+    h : double
+        differential length for differencial calculationg
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    result = np.zeros(len(point))
+    
+    for i in range(len(point)):
+        askelTaakse = np.copy(point)
+        askelTaakse[i] -= h        
+        askelEteen = np.copy(point)
+        askelEteen[i] += +h
+        jakaja = 2*h        
+        jaettava = fun(askelEteen) - fun(askelTaakse)
+        result[i] = jaettava / jakaja
+        
+    return result
+        
+def gradtest():
+    t1 = np.array([3.,3.])
+    true1 = np.array([2*t1[0], 2*t1[1]])
+    
+    testi = gradient(gradfun1, t1, 0.001)
+    print(testi)
+    
 """
 These are example functions for testing
 """
@@ -161,6 +200,10 @@ def testifun2(x): return 2* x**3 + x**2 + 42
 
 # f(x) = exp(2x) + sin(x)
 def testifun3(x): return np.exp(2*x) + np.sin(x)
+
+def gradfun1(x): 
+    print(x[1])
+    return (x[0])**2 + (x[1])**2
     
    
 
@@ -314,21 +357,8 @@ def main():
     # test_integral(13, 0, 2)    
     # test_integral(115, 0, 2)
     # test_integral(235, 0, 3)
-    
-    testi = np.zeros(0)
-    
-    for i in range(6):
-        uusi = np.linspace(i,i+1,2**i*10)
-        testi = np.concatenate((testi,uusi[:-1]), axis = 0)
-    testi = np.concatenate((testi,[6]), axis = 0)
-    
-    print(testi)
-    print(len(testi))
-    from scipy import special
-    
-    
-    
-    print(special.sici(1)[0])
+
+    gradtest()
     
     
         
