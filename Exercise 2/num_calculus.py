@@ -228,6 +228,52 @@ def gradtest3D():
     fig.savefig('grad_3D.pdf', dpi = 200)        
     
     
+def SGD(fun, point, iterations, a, h):
+    """
+    Steepest Gradient Descent algorithm
+
+    Parameters
+    ----------
+    fun : function
+        function what to minimize
+    point : np.array
+        starting point
+    iterations : int
+        Number of iterations
+    a : double
+        scaling value for gamma 
+    h : double
+        h value for gradient
+
+    Returns
+    -------
+    point : np.array
+        minimum where SGD descents
+
+    """
+        
+    for n in range(iterations):        
+        gamma = a / (np.linalg.norm(gradient(fun, point, h))+1)        
+        point = point - gamma * gradient(fun, point, h)
+    return point
+        
+
+def SGDtest():
+    
+    point = np.array([-.42, 4.2])
+    h = 1e-5
+    a = 1e-2
+    # Testing 2D case minimum is 0    
+    tulos = SGD(mintest, point, int(1e4), a, h)    
+    print("SGD gives on mintest:{} with value: {} a: {}".format(tulos,mintest(tulos), a))
+            
+    # Testing 3D case minimum is 1
+    point = np.array([-4.2,3.2,1.2])
+    tulos = SGD(mintest2, point, int(1e4), a, h)        
+    print("SGD gives on mintest:{} with value: {} a: {}".format(tulos,mintest2(tulos), a))
+    
+    
+    
 """
 These are example functions for testing
 """
@@ -243,6 +289,12 @@ def testifun3(x): return np.exp(2*x) + np.sin(x)
 def gradfun1(x): return np.exp((x[0])**2 + (x[1])**2)
 
 def gradfun2(x): return x[0]*x[1]*np.exp(x[1]**2 + x[2]**2)
+
+def mintest(x): return (x[0]-3)**2 + (x[1]+2)**2
+
+def mintest2(x): return np.exp(x[0]**2 + x[1]**2 + x[2]**2 )
+
+
     
    
 
@@ -386,8 +438,9 @@ def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
         
 def main():
     
-    gradtest2D()
-    gradtest3D()
+    # gradtest2D()
+    # gradtest3D()
+    SGDtest()
     
     
         
