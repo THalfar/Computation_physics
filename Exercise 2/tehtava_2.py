@@ -273,30 +273,38 @@ def monte_carlo_3D_ball(r, ra, rb, points):
     """
     
     V = (4/3) * np.pi * r**3
-    
     summation = 0
-    
+           
     for i in range(points):
+        
                                 
         # calculate random point inside sphere coordinates
-        r_dice = r*np.random.random()
+        # derivate of V'(r) = r^2
+        while True:
+            r_dice = np.random.random()*r**2
+            if r_dice < r:
+                break
+                            
         theta_dice = np.pi*np.random.random()
         rho_dice = 2*np.pi*np.random.random() 
-            
+        # transform from spherical to cartesian coord   
         random_vector = [r_dice*np.sin(theta_dice)*np.cos(rho_dice),
-                         r_dice*np.sin(theta_dice)*np.sin(rho_dice),
-                         r_dice*np.cos(theta_dice)]
+                          r_dice*np.sin(theta_dice)*np.sin(rho_dice),
+                          r_dice*np.cos(theta_dice)]
         
-                                 
+     
+                
+                                             
         atrain = np.exp(-1*np.linalg.norm(random_vector-ra)) / np.sqrt(np.pi)
         jaettava = atrain**2
         jakaja = np.linalg.norm(random_vector - rb)
         tulos = jaettava / jakaja
         summation += tulos
         
-    summation /= points
-    
-    return summation * V
+    summation /= points        
+    summation *= V
+        
+    return summation
  
    # TODO JOKU VIKA! Ei toimi.. katso kun muut tehty alta pois vielä tätä...
 # Pirullista, kun suurin osa tuloksista menee kohtuu lähelle oikeaa arvoa...
@@ -310,7 +318,8 @@ def test_intViides():
         rb = np.random.rand(3)                   
         R = np.linalg.norm(ra-rb)        
         oikea = (1- (1+R)*np.exp(-2*R))/R
-        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e5))
+        
+        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e3))
         print("Oikea: {}".format(oikea))
         print("Nopanheitto antoi tuloksen: {}".format(tulos) )
         print("Virhe abs. : {}".format(np.abs(oikea-tulos)))
