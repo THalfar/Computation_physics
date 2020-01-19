@@ -250,7 +250,7 @@ def test_intNeljas():
     plt.yscale('log')    
     plt.show()
     
-def monte_carlo_3D_ball(r, ra, rb, points):
+def monte_carlo_3D_ball(r, ra, rb, points, iterations):
     """
     Integrates N-dimensional monte carlo ball
         
@@ -273,56 +273,47 @@ def monte_carlo_3D_ball(r, ra, rb, points):
     """
     
     V = (4/3) * np.pi * r**3
-    summation = 0
-           
-    for i in range(points):
+    integraalit = []
+    
+    for j in range(iterations):
+        summation = 0
+               
+        for i in range(points):
+            
+            while True:
+                random_vector = -2*r*np.random.random(3) + r
+                if np.linalg.norm(random_vector) < r:
+                    break                                                       
+                         
+            atrain = np.exp(-1*np.linalg.norm(random_vector-ra)) / np.sqrt(np.pi)
+            jaettava = atrain**2
+            jakaja = np.linalg.norm(random_vector - rb)
+            tulos = jaettava / jakaja
+            summation += tulos
+            
+        summation /= points        
+        integraalit.append(summation) 
         
-                                
-        # calculate random point inside sphere coordinates
-        # derivate of V'(r) = r^2
-        while True:
-            r_dice = np.random.random()*r**2
-            if r_dice < r:
-                break
-                            
-        theta_dice = np.pi*np.random.random()
-        rho_dice = 2*np.pi*np.random.random() 
-        # transform from spherical to cartesian coord   
-        random_vector = [r_dice*np.sin(theta_dice)*np.cos(rho_dice),
-                          r_dice*np.sin(theta_dice)*np.sin(rho_dice),
-                          r_dice*np.cos(theta_dice)]
-        
-     
-                
-                                             
-        atrain = np.exp(-1*np.linalg.norm(random_vector-ra)) / np.sqrt(np.pi)
-        jaettava = atrain**2
-        jakaja = np.linalg.norm(random_vector - rb)
-        tulos = jaettava / jakaja
-        summation += tulos
-        
-    summation /= points        
-    summation *= V
-        
-    return summation
+    return np.mean(integraalit)*V
  
-   # TODO JOKU VIKA! Ei toimi.. katso kun muut tehty alta pois vielä tätä...
-# Pirullista, kun suurin osa tuloksista menee kohtuu lähelle oikeaa arvoa...
+
 def test_intViides():
     
-    r = 2
+    r = 4
               
     for i in range(5):
         
-        ra = np.random.rand(3)
-        rb = np.random.rand(3)                   
+        ra = -2*np.random.rand(3)+2
+        rb = -2*np.random.rand(3)+2                   
         R = np.linalg.norm(ra-rb)        
         oikea = (1- (1+R)*np.exp(-2*R))/R
         
-        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e3))
-        print("Oikea: {}".format(oikea))
-        print("Nopanheitto antoi tuloksen: {}".format(tulos) )
-        print("Virhe abs. : {}".format(np.abs(oikea-tulos)))
+        tulos = monte_carlo_3D_ball(r, ra, rb, int(1e3), 10)
+        print("ra: {} rb: {} R: {}".format(ra,rb,R))
+        print("Oikea : {}".format(oikea))
+        print("Carlo : {}".format(tulos) )        
+        print("Virhe : {}".format(np.abs(oikea-tulos)))
+        print("Virhe%: {:.2%}".format(np.abs(oikea-tulos)/oikea))        
         print("")
         
         
