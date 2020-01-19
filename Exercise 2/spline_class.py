@@ -386,65 +386,9 @@ def test3D():
           
 def main():
     
-    # test1D()
-    # test2D()
+    test1D()
+    test2D()
     test3D()
 
-    # # 1d example
-    # x=linspace(0.,2.*pi,20)
-    # y=sin(x)
-    # spl1d=spline(x=x,f=y,dims=1)
-    # xx=linspace(0.,2.*pi,100)
-    # figure()
-    # # function
-    # plot(xx,spl1d.eval1d(xx))
-    # plot(x,y,'o',xx,sin(xx),'r--')
-    # title('function')
-    
-    # # 2d example
-    # fig=figure()
-    # ax=fig.add_subplot(121)
-    # x=linspace(0.0,3.0,11)
-    # y=linspace(0.0,3.0,11)
-    # X,Y = meshgrid(x,y)
-    # Z = (X+Y)*exp(-1.0*(X*X+Y*Y))
-    # ax.pcolor(X,Y,Z)
-    # ax.set_title('original')
-
-    # spl2d=spline(x=x,y=y,f=Z,dims=2)
-    # #figure()
-    # ax2=fig.add_subplot(122)
-    # x=linspace(0.0,3.0,51)
-    # y=linspace(0.0,3.0,51)
-    # X,Y = meshgrid(x,y)
-    # Z = spl2d.eval2d(x,y)
-    # ax2.pcolor(X,Y,Z)
-    # ax2.set_title('interpolated')
-
-    # # 3d example
-    # x=linspace(0.0,3.0,10)
-    # y=linspace(0.0,3.0,10)
-    # z=linspace(0.0,3.0,10)
-    # X,Y,Z = meshgrid(x,y,z)
-    # F = (X+Y+Z)*exp(-1.0*(X*X+Y*Y+Z*Z))
-    # X,Y= meshgrid(x,y)
-    # fig3d=figure()
-    # ax=fig3d.add_subplot(121)
-    # ax.pcolor(X,Y,F[...,int(len(z)/2)])
-    # ax.set_title('original')
-
-    # spl3d=spline(x=x,y=y,z=z,f=F,dims=3)  
-    # x=linspace(0.0,3.0,50)
-    # y=linspace(0.0,3.0,50)
-    # z=linspace(0.0,3.0,50)
-    # X,Y= meshgrid(x,y)
-    # ax2=fig3d.add_subplot(122)
-    # F=spl3d.eval3d(x,y,z)
-    # ax2.pcolor(X,Y,F[...,int(len(z)/2)])
-    # ax2.set_title('interpolated')
-
-    # show()
-#end main
-    
 if __name__=="__main__":
     main()

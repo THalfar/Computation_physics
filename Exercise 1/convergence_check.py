@@ -109,7 +109,7 @@ def integral_error_plot(xmin = 0, xmax = 2, dxmin = 1e-5, dxmax = 1e-1, points =
 def main():
     
     derivate_error_plot(1)
-    integral_error_plot()
+    # integral_error_plot()
     
     
     

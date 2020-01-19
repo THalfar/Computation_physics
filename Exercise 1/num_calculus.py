@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def first_derivate(function, x, dx):
     """
@@ -17,7 +18,6 @@ def first_derivate(function, x, dx):
     jaettava = function(x+dx) - function(x-dx)
     
     return jaettava / jakaja
-
 
 def second_derivate(function, x, dx):
     """
@@ -165,7 +165,7 @@ def gradient(fun, point, h):
 
     Returns
     -------
-    None.
+    np.array of gradient values
 
     """
     
@@ -179,15 +179,54 @@ def gradient(fun, point, h):
         jakaja = 2*h        
         jaettava = fun(askelEteen) - fun(askelTaakse)
         result[i] = jaettava / jakaja
-        
+            
     return result
         
-def gradtest():
-    t1 = np.array([3.,3.])
-    true1 = np.array([2*t1[0], 2*t1[1]])
+def gradtest2D():
+    t1 = np.array([1.,1.])    
+    h_values = np.geomspace(1e-1,1e-5,42)
+    errors1 = []
+    true1 = np.array([2*t1[0]*np.exp(t1[0]**2+t1[0]**2), 2*t1[1]*np.exp(t1[0]**2+t1[1]**2)])    
     
-    testi = gradient(gradfun1, t1, 0.001)
-    print(testi)
+    for h in h_values:        
+        testi1 = gradient(gradfun1, t1, h)        
+        errors1.append(np.linalg.norm(true1-testi1))
+    
+        
+    fig = plt.figure()
+    plt.plot(h_values,errors1, 'or', label= r'$f(x,y) = exp(x^2+y^2) $')        
+    plt.xlabel("h")
+    plt.ylabel("L2 error")
+    plt.title("Grad error 2D")    
+    plt.xlim(h_values[0], h_values[-1])
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    fig.savefig('grad_2D.pdf', dpi = 200)
+    
+     
+def gradtest3D():
+    p = np.array([1., 1., 1.])   
+    h_values = np.geomspace(1e-1,1e-5,42)
+    errors = []
+    true = np.array([p[0]*np.exp(p[1]**2+p[2]**2), p[0]*(2*p[1]**2+1)*np.exp(p[1]**2+p[2]**2), 
+                     2*p[0]*p[1]*p[2]*np.exp(p[1]**2+p[2]**2)])
+    
+    for h in h_values:
+        test = gradient(gradfun2, p, h)
+        errors.append(np.linalg.norm(true-test))
+    
+    fig = plt.figure()
+    plt.plot(h_values,errors, 'or', label= r'$f(x,y,z) = x*y*exp(y^2+z^2) $')        
+    plt.xlabel("h")
+    plt.ylabel("L2 error")
+    plt.title("Grad error 3D")    
+    plt.xlim(h_values[0], h_values[-1])
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(loc = 0)
+    fig.savefig('grad_3D.pdf', dpi = 200)        
+    
     
 """
 These are example functions for testing
@@ -201,9 +240,9 @@ def testifun2(x): return 2* x**3 + x**2 + 42
 # f(x) = exp(2x) + sin(x)
 def testifun3(x): return np.exp(2*x) + np.sin(x)
 
-def gradfun1(x): 
-    print(x[1])
-    return (x[0])**2 + (x[1])**2
+def gradfun1(x): return np.exp((x[0])**2 + (x[1])**2)
+
+def gradfun2(x): return x[0]*x[1]*np.exp(x[1]**2 + x[2]**2)
     
    
 
@@ -347,18 +386,8 @@ def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
         
 def main():
     
-    
-    # test_first_derivate(1.42, 0.0001)
-    # test_second_derivate(1.42, 0.0001)
-    
-    # test_first_derivate(-1.42, 0.001)
-    # test_second_derivate(-1.42, 0.001)
-    
-    # test_integral(13, 0, 2)    
-    # test_integral(115, 0, 2)
-    # test_integral(235, 0, 3)
-
-    gradtest()
+    gradtest2D()
+    gradtest3D()
     
     
         
