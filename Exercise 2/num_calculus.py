@@ -175,7 +175,7 @@ def gradient(fun, point, h):
         askelTaakse = np.copy(point)
         askelTaakse[i] -= h        
         askelEteen = np.copy(point)
-        askelEteen[i] += +h
+        askelEteen[i] += h
         jakaja = 2*h        
         jaettava = fun(askelEteen) - fun(askelTaakse)
         result[i] = jaettava / jakaja
@@ -257,11 +257,11 @@ def SGD(fun, point, iterations, a, h):
         point = point - gamma * gradient(fun, point, h)
     return point
         
-
+# Simple test for SGD
 def SGDtest():
     
     point = np.array([-.42, 4.2])
-    h = 1e-5
+    h = 1e-6
     a = 1e-2
     # Testing 2D case minimum is 0    
     tulos = SGD(mintest, point, int(1e4), a, h)    
@@ -270,7 +270,15 @@ def SGDtest():
     # Testing 3D case minimum is 1
     point = np.array([-4.2,3.2,1.2])
     tulos = SGD(mintest2, point, int(1e4), a, h)        
-    print("SGD gives on mintest:{} with value: {} a: {}".format(tulos,mintest2(tulos), a))
+    print("SGD gives on mintest2:{} with value: {} a: {}".format(tulos,mintest2(tulos), a))
+    
+    # a_values = np.logspace(1, 6, base = 1/10, num = 10) # tosi herkkä a arvoille..    
+    a_values= np.geomspace(5e-3,1e-6,13)
+    for a in a_values:
+        # Testing 3D case minimum is -1
+        point = np.array([-2.,3.,-4.])
+        tulos = SGD(mintest2, point, int(1e4), a, h)        
+        print("SGD gives on mintest3:{} with value: {} a: {}".format(tulos,mintest3(tulos), a))
     
     
     
@@ -294,9 +302,8 @@ def mintest(x): return (x[0]-3)**2 + (x[1]+2)**2
 
 def mintest2(x): return np.exp(x[0]**2 + x[1]**2 + x[2]**2 )
 
+def mintest3(x): return np.sin(x[0] + x[1] + x[2] )
 
-    
-   
 
 def test_first_derivate(x, dx):
    """
@@ -438,8 +445,8 @@ def test_integral(jako, xmin, xmax, blocks = 100, iterations = 100):
         
 def main():
     
-    # gradtest2D()
-    # gradtest3D()
+    gradtest2D()
+    gradtest3D()
     SGDtest()
     
     
