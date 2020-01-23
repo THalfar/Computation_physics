@@ -19,8 +19,8 @@ import matplotlib.pyplot as plt
     
     
 
-x = np.linspace(-2,2,20)
-y = np.linspace(-1,1,20)
+x = np.linspace(-5,5,20)
+y = np.linspace(1,5,20)
 X,Y = np.meshgrid(x,y)
 
 # q = np.array([[0.5,5.5,1e-5], [1.1,2.1,0]])
@@ -28,15 +28,15 @@ X,Y = np.meshgrid(x,y)
 def line(l, n, q):
     
     qn = q/n
-    y = np.linspace(-l/2, l/2, n).reshape((n,1))
-    x = np.zeros((n,1))
+    x = np.linspace(-l/2, l/2, n).reshape((n,1))
+    y = np.zeros((n,1))
     q = np.ones((n,1))*qn
     
    
     
     
     
-    ulos = np.concatenate((x,y,q), axis = 1)
+    ulos = np.concatenate((y,x,q), axis = 1)
     return ulos
     
     
@@ -59,7 +59,8 @@ def test(x,y):
         
     return Ex, Ey
         
-varaukset = line(1,1000,1)
+
+varaukset = line(1,1000,1e-6)
 Ex, Ey = test(X,Y)
 
 fig, ax = plt.subplots()
