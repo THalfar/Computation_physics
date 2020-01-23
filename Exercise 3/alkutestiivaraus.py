@@ -61,19 +61,22 @@ def test(x,y, varaukset, tol):
     return Ex, Ey
         
 
-varaukset = line(1,1000,1e-6)
+# varaukset = line(1,1000,1e-6)
 
 x = np.linspace(2,8,20)
 y = np.linspace(-2,2,20)
 X,Y = np.meshgrid(x,y)
 
-varaukset = ympyra(100,-1)
+# varaukset = ympyra(100,-1)
+
+# varaukset = np.array([[1,1,1],[]])
 
 fig, ax = plt.subplots()
-ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
+# ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
 
 uusia = np.array([[4,1,0.2], [6,1,0.2]])
-varaukset = np.concatenate((varaukset,uusia), axis = 0)
+varaukset = uusia
+# varaukset = np.concatenate((varaukset,uusia), axis = 0)
 ax.plot([4,6], [1, 1], 'ro')
 Ex, Ey = test(X,Y, varaukset, 0.3)
 q = ax.quiver(x, y, Ex, Ey)

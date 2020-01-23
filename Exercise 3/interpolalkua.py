@@ -33,7 +33,7 @@ fig.tight_layout()
 plt.show()
 
 n_int = 100
-x3 = np.linspace(0,2,n_int)
+x3 = np.linspace(0,2/ np.sqrt(1.75),n_int)
 y3 = np.sqrt(1.75) * x3
 # x3.resize(1,100)
 # y3.resize(1,100)
