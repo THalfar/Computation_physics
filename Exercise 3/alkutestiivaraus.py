@@ -43,7 +43,7 @@ def ympyra(n,q):
     
 
 
-def test(x,y, varaukset):
+def test(x,y, varaukset, tol):
     
     Ex = np.zeros_like(x)
     Ey = np.zeros_like(y)
@@ -53,15 +53,15 @@ def test(x,y, varaukset):
         etaisyys = np.sqrt((varaus[0]-x)**2 + (varaus[1]-y)**2 )
         
         erotusvektoriX =  x- varaus[0] 
-        Ex += varaus[-1] * np.divide( erotusvektoriX, etaisyys**3, out = np.zeros_like(etaisyys),where=etaisyys!=0)
+        Ex += varaus[-1] * np.divide( erotusvektoriX, etaisyys**3, out = np.zeros_like(etaisyys),where=etaisyys>tol)
         
         erotusvektoriY = y - varaus[1] 
-        Ey += varaus[-1] * np.divide( erotusvektoriY, etaisyys**3, out = np.zeros_like(etaisyys), where=etaisyys!=0)
+        Ey += varaus[-1] * np.divide( erotusvektoriY, etaisyys**3, out = np.zeros_like(etaisyys), where=etaisyys>tol)
         
     return Ex, Ey
         
 
-# varaukset = line(1,1000,1e-6)
+varaukset = line(1,1000,1e-6)
 
 x = np.linspace(2,8,20)
 y = np.linspace(-2,2,20)
@@ -72,9 +72,9 @@ varaukset = ympyra(100,-1)
 fig, ax = plt.subplots()
 ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
 
-uusia = np.array([[4,1,0.5], [6,1,0.5]])
+uusia = np.array([[4,1,0.2], [6,1,0.2]])
 varaukset = np.concatenate((varaukset,uusia), axis = 0)
 ax.plot([4,6], [1, 1], 'ro')
-Ex, Ey = test(X,Y, varaukset)
+Ex, Ey = test(X,Y, varaukset, 0.3)
 q = ax.quiver(x, y, Ex, Ey)
 
