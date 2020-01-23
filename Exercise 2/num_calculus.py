@@ -272,8 +272,8 @@ def SGDtest():
     tulos = SGD(mintest2, point, int(1e4), a, h)        
     print("SGD gives on mintest2:{} with value: {} a: {}".format(tulos,mintest2(tulos), a))
     
-    # a_values = np.logspace(1, 6, base = 1/10, num = 10) # tosi herkkä a arvoille..    
-    a_values= np.geomspace(5e-3,1e-6,13)
+    
+    a_values= np.geomspace(5e-3,1e-6,13) # tosi herkkä a arvoille..    
     for a in a_values:
         # Testing 3D case minimum is -1
         point = np.array([-2.,3.,-4.])
