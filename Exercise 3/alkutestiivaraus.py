@@ -19,9 +19,6 @@ import matplotlib.pyplot as plt
     
     
 
-x = np.linspace(-5,5,20)
-y = np.linspace(1,5,20)
-X,Y = np.meshgrid(x,y)
 
 # q = np.array([[0.5,5.5,1e-5], [1.1,2.1,0]])
 
@@ -30,38 +27,54 @@ def line(l, n, q):
     qn = q/n
     x = np.linspace(-l/2, l/2, n).reshape((n,1))
     y = np.zeros((n,1))
-    q = np.ones((n,1))*qn
-    
-   
-    
-    
-    
-    ulos = np.concatenate((y,x,q), axis = 1)
+    q = np.ones((n,1))*qn 
+    ulos = np.concatenate((x,y,q), axis = 1)
     return ulos
     
+
+def ympyra(n,q):
+    
+    qn = q/n
+    x = np.linspace(np.pi, 2*np.pi,n).reshape((n,1))
+    y = np.sin(x)
+    q = np.ones((n,1))*qn
+    ulos = np.concatenate((x,y,q), axis = 1)
+    return ulos
     
 
 
-def test(x,y):
+def test(x,y, varaukset):
     
     Ex = np.zeros_like(x)
     Ey = np.zeros_like(y)
     
     for varaus in varaukset:
         # print(varaus)
-        etaisyys = np.sqrt((x-varaus[0])**2 + (y-varaus[1])**2 )
+        etaisyys = np.sqrt((varaus[0]-x)**2 + (varaus[1]-y)**2 )
         
-        erotusvektoriX =  varaus[0] - x
+        erotusvektoriX =  x- varaus[0] 
         Ex += varaus[-1] * np.divide( erotusvektoriX, etaisyys**3, out = np.zeros_like(etaisyys),where=etaisyys!=0)
         
-        erotusvektoriY = varaus[1] - y
+        erotusvektoriY = y - varaus[1] 
         Ey += varaus[-1] * np.divide( erotusvektoriY, etaisyys**3, out = np.zeros_like(etaisyys), where=etaisyys!=0)
         
     return Ex, Ey
         
 
-varaukset = line(1,1000,1e-6)
-Ex, Ey = test(X,Y)
+# varaukset = line(1,1000,1e-6)
+
+x = np.linspace(2,8,20)
+y = np.linspace(-2,2,20)
+X,Y = np.meshgrid(x,y)
+
+varaukset = ympyra(100,-1)
 
 fig, ax = plt.subplots()
+ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
+
+uusia = np.array([[4,1,0.5], [6,1,0.5]])
+varaukset = np.concatenate((varaukset,uusia), axis = 0)
+ax.plot([4,6], [1, 1], 'ro')
+Ex, Ey = test(X,Y, varaukset)
 q = ax.quiver(x, y, Ex, Ey)
+
