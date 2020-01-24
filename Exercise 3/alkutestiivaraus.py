@@ -1,27 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# varaus = np.array([0,0,1], dtype = float, ndmin= 2)
-# paikat = np.array([[1,1], [-1, -1]], dtype = float)
-
-# testi = varaus[:, :-1] -paikat
-# r_norm = np.linalg.norm(testi, axis = 1)
-
-# voimax = np.zeros_like(paikat, dtype = float)
-
-# for i, paikka in enumerate(paikat):
-    
-#     for qpaikka in varaus:
-                    
-#         voimax[i,0] += qpaikka[-1] * (qpaikka[:-1] - paikka)[0] / np.linalg.norm(paikka - qpaikka[:-1])**3
-#         voimax[i,1] += qpaikka[-1] * (qpaikka[:-1] - paikka)[1] / np.linalg.norm(paikka - qpaikka[:-1])**3   
- 
-    
-    
-
-
-# q = np.array([[0.5,5.5,1e-5], [1.1,2.1,0]])
-
 def viiva(alku, loppu, n, q):
     
     if n<3:
@@ -40,24 +19,6 @@ def viiva(alku, loppu, n, q):
     
     return viiva
         
-        
-    
-    
-    
-    
-    
-
-
-
-# def line(l, n, q):
-    
-#     qn = q/n
-#     x = np.linspace(-l/2, l/2, n).reshape((n,1))
-#     y = np.zeros((n,1))
-#     q = np.ones((n,1))*qn 
-#     ulos = np.concatenate((x,y,q), axis = 1)
-#     return ulos
-    
 
 def ympyra(paikka, alkukulma, loppukulma, r, n, q):
     
@@ -70,10 +31,6 @@ def ympyra(paikka, alkukulma, loppukulma, r, n, q):
         viiva[i,:] = np.append(lisays, qn)
     
     return viiva
-
-
-    
-
 
 def test(x,y, varaukset):
     
@@ -92,8 +49,6 @@ def test(x,y, varaukset):
         
     return Ex, Ey
         
-
-
 x = np.linspace(-3,3,20)
 y = np.linspace(-3,3,20)
 X,Y = np.meshgrid(x,y)
@@ -101,14 +56,13 @@ X,Y = np.meshgrid(x,y)
 fig, ax = plt.subplots()
 
 alku = np.array([0,0])
-varaukset = ympyra(alku,np.pi,2*np.pi, 1.33, 100,-1)
+varaukset = ympyra(alku,np.pi,2*np.pi, 1.33, 1000,-1)
 ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
 
 silmat = np.array([[-0.5,1,0.5],[0.5,1,0.5]])
 varaukset = np.concatenate((varaukset, silmat), axis = 0)
-
 ax.plot(varaukset[-2:,0], varaukset[-2:,1], 'ro')
 
 Ex, Ey = test(X,Y, varaukset)
-q = ax.quiver(x, y, Ex, Ey)
+ax.quiver(x, y, Ex, Ey)
 
