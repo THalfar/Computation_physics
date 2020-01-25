@@ -44,6 +44,7 @@ interpol = []
 for i in range(n_int):
     oikea = (x3[i]+y3[i]) * np.exp(-np.sqrt(x3[i]**2 + y3[i]**2))
     oikeat.append(oikea)
+    
     inter = f(x3[i],y3[i])
     interpol.append(inter)
     
