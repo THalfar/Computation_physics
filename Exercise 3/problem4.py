@@ -185,10 +185,50 @@ def testRod(d, L ,Q, n):
     print("Analytical solution gives at x-direction: {}".format(real))
     print("Error: {:.6%}".format(np.abs(testi[0] - real)/np.abs(real)))
     
+# test the point line with a bunch of lines    
+def linestest():     
+    x = np.linspace(-4,4,50)
+    y = np.linspace(-4,4,50)
+    X,Y = np.meshgrid(x,y)
+    
+    fig, ax = plt.subplots()
+    
+    alku = np.array([0,0])
+    loppu = np.array([2,-1])
+    varaukset = viiva(alku,loppu,100,1)
+    ax.plot(varaukset[:,0], varaukset[:,1], 'ro')
+    
+    alku = np.array([0,0])
+    loppu = np.array([-1,-1])
+    lisaviiva = viiva(alku,loppu, 100, -1)
+    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    
+    alku = np.array([1,1])
+    loppu = np.array([3,2])
+    lisaviiva = viiva(alku,loppu, 100, -1)
+    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    
+    alku = np.array([-2,2])
+    loppu = np.array([0,3])
+    lisaviiva = viiva(alku,loppu, 100, 2)
+    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
+    
+    
+    
+    Ex, Ey = Epoints(X,Y, varaukset)
+    ax.streamplot(X,Y,Ex,Ey)
+    ax.set_aspect('equal')
+    plt.title("Many lines using streamplot")
+    plt.xlabel("x-axis")
+    plt.ylabel("y-axis")    
 
 def main():
     face()
     testRod(2,1,1e-6,10)
+    linestest()
    
     
 if __name__=="__main__":
