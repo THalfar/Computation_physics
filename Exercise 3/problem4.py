@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
-def viiva(alku, loppu, n, q):
+
+def viiva(alku, loppu, n, q = None):
     """
     makes a line of charge points
 
@@ -27,16 +28,24 @@ def viiva(alku, loppu, n, q):
     if n<3:
         print("ei alle n<3")
         return
-    
-    qn = q/n
-    
-    viiva = np.zeros((n,3))
-    viiva[0, :] = np.append(alku, qn) # add head
-    erotus = (loppu - alku) / (n-1)
-    
-    for i in range(1,n):
-        viiva[i, :] = np.append(alku+erotus*i, qn)
-    
+
+    if q != None:    
+        qn = q/n
+        viiva = np.zeros((n,3))
+        viiva[0, :] = np.append(alku, qn) # add head
+        erotus = (loppu - alku) / (n-1)
+        
+        for i in range(1,n):
+            viiva[i, :] = np.append(alku+erotus*i, qn)            
+            
+    else:
+        viiva = np.zeros((n,2))
+        viiva[0, :] = alku # add head
+        erotus = (loppu - alku) / (n-1)
+        
+        for i in range(1,n):
+            viiva[i, :] = alku+erotus*i  
+        
     return viiva
         
 
@@ -145,9 +154,67 @@ def face():
     Ex, Ey = Epoints(X,Y, varaukset)
     ax.streamplot(X,Y,Ex,Ey)
     ax.set_aspect('equal')
-    plt.title("Face using streamplot")
+    plt.title("Face using streamplot and pointlines")
     plt.xlabel("x-axis")
     plt.ylabel("y-axis")
+    
+  
+def Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey):
+    """
+    Calculates Electric field of a continous line using simpson integral
+
+    Parameters
+    ----------
+    alku : np.array(2,1)
+        starting point
+    loppu : np.array(2,1)
+        ending point
+    n : int
+        number of simps integral points for this line
+    Q : float
+        total charge in this line
+    X : np.array(size,size)
+        meshgrid of X points value
+    Y : np.array(size,size)
+        meshgrid of y points value
+    Ex : np.array(size,size)
+        field streight meshgrid Ex coords
+    Ey : np.array(size,size)
+        field streight meshgrid Ey coords
+
+    Returns
+    -------
+    Ex : np.array(size,size)
+        Ex meshgrid with line charges added
+    Ey : np.array(size,size)
+        Ey meshgrid with line charges added
+
+    """
+    
+    suora = viiva(alku, loppu, n)
+    pituus = np.linalg.norm(alku-loppu)
+    varaustiheys = Q / pituus
+    
+    for i in range(Ex.shape[0]):
+        
+        for j in range(Ex.shape[1]):
+            
+            simarvotX = []      
+            simarvotY = []
+            
+    
+            for arvo in suora:
+                # print(arvo)
+        
+                simarvotX.append((X[i,j] - arvo[0]) / ( (X[i,j]-arvo[0])**2 + (Y[i,j]-arvo[1])**2 )**(3/2))                    
+                simarvotY.append((Y[i,j] - arvo[1]) / ( (X[i,j]-arvo[0])**2 + (Y[i,j]-arvo[1])**2 )**(3/2))
+        
+            Ex[i,j] += simps(simarvotX) * varaustiheys
+            Ey[i,j] += simps(simarvotY) * varaustiheys
+    
+    return Ex, Ey
+    
+    
     
     
 def Elinerod(L, n, Q, x, y):
@@ -238,15 +305,46 @@ def linestest():
     Ex, Ey = Epoints(X,Y, varaukset)
     ax.streamplot(X,Y,Ex,Ey)
     ax.set_aspect('equal')
-    plt.title("Many lines using streamplot")
+    plt.title("Many pointlines using streamplot")
     plt.xlabel("x-axis")
     plt.ylabel("y-axis")    
+
+# testing the line integraalihässäkkä
+def simpslinetesti(intpoints = 10):
+   
+    x = np.linspace(-4,4,50)
+    y = np.linspace(-4,4,50)
+    X,Y = np.meshgrid(x,y)
+    Ex, Ey = np.zeros_like(X), np.zeros_like(Y) 
+    
+    fig, ax = plt.subplots(figsize=(10,10))
+    
+    alku = np.array([-2,0])
+    loppu = np.array([2,0])
+    ax.plot([-2, 2], [0,0], '-r')
+    Ex, Ey = Esimpsline(alku, loppu, intpoints,1, X, Y, Ex, Ey)
+    
+    alku = np.array([0,0])
+    loppu = np.array([0,3])
+    ax.plot([0, 0], [0,3], '-b')
+    Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
+
+    ax.streamplot(X,Y,Ex,Ey)
+    plt.title("Simpson integrated lines using streamplot and {} points per line".format(intpoints))
+    plt.xlabel("x-axis")
+    plt.ylabel("y-axis")    
+    
+    
+    
 
 def main():
     face()
     testRod(2,1,1e-6,10)
     linestest()
-   
+    simpslinetesti(13)
+ 
+    
+    
     
 if __name__=="__main__":
     main()
