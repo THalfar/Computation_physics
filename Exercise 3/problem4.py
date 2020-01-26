@@ -322,11 +322,21 @@ def simpslinetesti(intpoints = 10):
     alku = np.array([-2,0])
     loppu = np.array([2,0])
     ax.plot([-2, 2], [0,0], '-r')
-    Ex, Ey = Esimpsline(alku, loppu, intpoints,1, X, Y, Ex, Ey)
+    Ex, Ey = Esimpsline(alku, loppu, intpoints,3, X, Y, Ex, Ey)
     
     alku = np.array([0,0])
     loppu = np.array([0,3])
     ax.plot([0, 0], [0,3], '-b')
+    Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
+    
+    alku = np.array([0,0])
+    loppu = np.array([3,3])
+    ax.plot([0, 3], [0,3], '-b')
+    Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
+    
+    alku = np.array([-1,-4])
+    loppu = np.array([1,-4])
+    ax.plot([-1, 1], [-4,-4], '-b')
     Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
 
     ax.streamplot(X,Y,Ex,Ey)
