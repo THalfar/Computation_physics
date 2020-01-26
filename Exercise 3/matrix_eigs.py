@@ -25,11 +25,42 @@ import scipy.sparse as sp
 import scipy.sparse.linalg as sla
 from scipy.integrate import simps
 
-
+# This seems not a good method. Convergence takes a long time in some cases!
 def largest_eig(A,tol=1e-12):
     """
-    Simple power method code needed here
+    Uses power method to find the biggest eigenvalue and corresponding
+    eigen vector
+
+    Parameters
+    ----------
+    A : scipy.sparse matrix
+        Matrix from which the eigenvalues and vector is calculated
+    tol : float
+        Tolerance when stop iterating. The default is 1e-12.
+
+    Returns
+    -------
+    eig_value : float 
+        Maximum eigenvalue of matrix A
+    eig_vector : np.array
+        Corresponding eigenvector of maximum eigenvalue
+
     """
+    # Initialize a random starting point
+    # Because random, it might take a long time to converge
+    x = np.random.rand(A.shape[0],1)
+    
+    while True:
+        x_cand = A.dot(x) / linalg.norm(A.dot(x)) # Calculate next canditate
+        #if canditate norm change below tolerance stop iterating
+        if linalg.norm(x-x_cand) < tol: 
+            eig_vector = x_cand
+            eig_value = linalg.norm(A.dot(x_cand)) /linalg.norm(x_cand)
+            break
+        
+        else:
+            x = x_cand # continue iteration with new x value
+   
     return eig_value, eig_vector
 
 
