@@ -216,6 +216,12 @@ def linestest():
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
     ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
     
+    alku = np.array([-3,-3])
+    loppu = np.array([3,-3])
+    lisaviiva = viiva(alku,loppu, 100, -1)
+    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    
     
     
     Ex, Ey = Epoints(X,Y, varaukset)
