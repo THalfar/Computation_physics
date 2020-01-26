@@ -116,21 +116,32 @@ def Epoints(X,Y, varaukset):
 
 # Test the Epoints method using a happy face
 def face():     
-    x = np.linspace(-4,4,50)
-    y = np.linspace(-4,4,50)
+    x = np.linspace(-5,5,50)
+    y = np.linspace(-5,5,50)
     X,Y = np.meshgrid(x,y)
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,10))
     
-    alku = np.array([0,0])
-    loppu = np.array([2,-1])
-    varaukset = ympyra(alku,np.pi,2*np.pi, 1.5, 500,-1)    
+    alku = np.array([0,0])    
+    varaukset = ympyra(alku,np.pi,2*np.pi, 1.5, 300,-1)    
     ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
     
-    silmat = np.array([[-0.5,1,0.5],[0.5,1,0.5]])
+    alku = np.array([-0.5,1])    
+    silmat = ympyra(alku,0,2*np.pi, 0.3, 300,1)    
     varaukset = np.concatenate((varaukset, silmat), axis = 0)
-    ax.plot(varaukset[-2:,0], varaukset[-2:,1], 'ro')
+    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
     
+    alku = np.array([0.5,1])    
+    silmat = ympyra(alku,0,2*np.pi, 0.3, 300,1)    
+    varaukset = np.concatenate((varaukset, silmat), axis = 0)
+    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+    
+    alku = np.array([-1,2])
+    loppu = np.array([1,2])
+    lisaviiva = viiva(alku,loppu, 100, -1)
+    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+        
     Ex, Ey = Epoints(X,Y, varaukset)
     ax.streamplot(X,Y,Ex,Ey)
     ax.set_aspect('equal')
@@ -191,7 +202,7 @@ def linestest():
     y = np.linspace(-4,4,50)
     X,Y = np.meshgrid(x,y)
     
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,10))
     
     alku = np.array([0,0])
     loppu = np.array([2,-1])
@@ -218,9 +229,9 @@ def linestest():
     
     alku = np.array([-3,-3])
     loppu = np.array([3,-3])
-    lisaviiva = viiva(alku,loppu, 100, -1)
+    lisaviiva = viiva(alku,loppu, 300, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
     
     
     
