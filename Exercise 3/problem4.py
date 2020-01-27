@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
+import time
+
 
 
 def viiva(alku, loppu, n, q = None):
@@ -123,7 +125,7 @@ def Epoints(X,Y, varaukset):
         
     return Ex, Ey
 
-# Test the Epoints method using a happy face
+# Test the Epoints and Esimpsline methods using a happy face
 def face():     
     x = np.linspace(-5,5,50)
     y = np.linspace(-5,5,50)
@@ -147,22 +149,22 @@ def face():
     varaukset = np.concatenate((varaukset, silmat), axis = 0)
     ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
     ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+            
+    Ex, Ey = Epoints(X,Y, varaukset)
     
     alku = np.array([-1,2])
     loppu = np.array([1,2])
-    lisaviiva = viiva(alku,loppu, 100, -1)
-    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
-    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
-        
-    Ex, Ey = Epoints(X,Y, varaukset)
+    Ex, Ey = Esimpsline(alku, loppu, 11, -1, X, Y, Ex, Ey)    
+    ax1.plot([-1,1],[2,2], 'b')
+    ax2.plot([-1,1],[2,2], 'b')
+    
     ax1.streamplot(X,Y,Ex,Ey)
     ax2.quiver(X,Y,Ex,Ey)
     
-    fig.suptitle("Face using charge points")
-           
+    fig.suptitle("Face using charge points and simpson line integral")           
     ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
     ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
+    plt.show()
     
   
 def Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey):
@@ -200,6 +202,7 @@ def Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey):
     suora = viiva(alku, loppu, n)
     pituus = np.linalg.norm(alku-loppu)
     varaustiheys = Q / pituus
+    dx = pituus / (n-1)
     
     for i in range(Ex.shape[0]):
         
@@ -215,59 +218,35 @@ def Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey):
                 simarvotX.append((X[i,j] - arvo[0]) / ( (X[i,j]-arvo[0])**2 + (Y[i,j]-arvo[1])**2 )**(3/2))                    
                 simarvotY.append((Y[i,j] - arvo[1]) / ( (X[i,j]-arvo[0])**2 + (Y[i,j]-arvo[1])**2 )**(3/2))
         
-            Ex[i,j] += simps(simarvotX) * varaustiheys
-            Ey[i,j] += simps(simarvotY) * varaustiheys
+            Ex[i,j] += simps(simarvotX, dx = dx) * varaustiheys
+            Ey[i,j] += simps(simarvotY, dx = dx) * varaustiheys
     
     return Ex, Ey
-    
-    
-    
-    
-def Elinerod(L, n, Q, x, y):
-    """
-    Calculates electric field of a uniformly charged rod at x-axis
-    with length L centered at origin
-
-    Parameters
-    ----------
-    L : float
-        Lentgh of rod
-    n : int
-        grid spacing over to integrate
-    Q : float
-        total charge of rod
-    x : float
-        x-coord where to calculate E field
-    y : float
-        y-coord where to calculate E field
-
-    Returns
-    -------
-    np.array
-        E field strength E[0] x-axis, E[1] y-axis
-
-    """
-    eps = 8.8541878128e-12 # vacuum permittivy
-    E = np.zeros(2) # Ex and Ey in array    
-    lam = Q/L # value of lambda line charge per length
-    x_grid = np.linspace(-L/2, L/2, n)
-    
-    x_values = (x -x_grid ) / ( (x - x_grid )**2 + y**2 )**(3/2)
-    E[0] = simps(x_values, x_grid) * lam/(4*np.pi*eps)
-    
-    y_values = y /  ( (x_grid - x)**2 + y**2 )**(3/2) 
-    E[1] = simps(y_values, x_grid)  * lam/(4*np.pi*eps)
-    
-    return E
-    
-# test the line integral method
+       
+# test the methods for one analytically known point
 def testRod(d, L ,Q, n):
-    testi = Elinerod(L, n, Q, L/2+d,0) # test value        
-    eps = 8.8541878128e-12 # vacuum permittivy
-    real =(Q/L) * (1/(4*np.pi*eps )) * (1/d - 1/(d+L)) # analytical value
-    print("Line integral gives at x-direction with {} points: {}".format(n, testi[0]))
+    x = np.linspace(L/2+d, L+d, 5)
+    y = np.linspace(0,1,5)
+    X, Y = np.meshgrid(x,y)
+    Ex = np.zeros_like(X)       
+    Ey = np.zeros_like(Y)
+    X[0, 0] = L/2+d
+    
+
+    real =(Q/L)  * (1/d - 1/(d+L)) # analytical value
+
+    alku = np.array([-L/2,0])
+    loppu = np.array([L/2,0])    
+    Ex_simp, Ey_simp = Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey)
+    
+    varaukset = viiva(alku, loppu, n, Q)
+    Ex_points, Ey_points = Epoints(X, Y, varaukset)
+        
+    print("Simpson line integral gives at x-direction with {} points: {}".format(n, Ex_simp[0,0]))
+    print("Points line gives at x-direction with {} points: {}".format(n, Ex_points[0,0]))
     print("Analytical solution gives at x-direction: {}".format(real))
-    print("Error: {:.6%}".format(np.abs(testi[0] - real)/np.abs(real)))
+    print("Error of simpson line integral {} points: {:.6%}".format(n, (np.abs(Ex_simp[0,0] - real)/np.abs(real))))
+    print("Error of points line {} points: {:.6%}".format(n, (np.abs(Ex_points[0,0] - real)/np.abs(real))))
     
 # test the point line with a bunch of lines    
 def linestest():     
@@ -280,45 +259,45 @@ def linestest():
     alku = np.array([0,0])
     loppu = np.array([2,-1])
     varaukset = viiva(alku,loppu,100,1)
-    ax1.plot(varaukset[:,0], varaukset[:,1], 'ro')
-    ax2.plot(varaukset[:,0], varaukset[:,1], 'ro')
+    ax1.plot(varaukset[:,0], varaukset[:,1], 'ro',  markersize = 1)
+    ax2.plot(varaukset[:,0], varaukset[:,1], 'ro', markersize = 1)
     
     alku = np.array([0,0])
     loppu = np.array([-1,-1])
     lisaviiva = viiva(alku,loppu, 100, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
-    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo',  markersize = 1)
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo', markersize = 1)
     
     alku = np.array([1,1])
     loppu = np.array([3,2])
     lisaviiva = viiva(alku,loppu, 100, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
-    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo', markersize = 1)
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo', markersize = 1)
     
     alku = np.array([-2,2])
     loppu = np.array([0,3])
     lisaviiva = viiva(alku,loppu, 100, 2)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
-    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro', markersize = 1)
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro', markersize = 1)
     
-    alku = np.array([-3,-3])
-    loppu = np.array([3,-3])
-    lisaviiva = viiva(alku,loppu, 300, -1)
-    varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
-    ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
+    # alku = np.array([-3,-2.8])
+    # loppu = np.array([3,-2.8])
+    # lisaviiva = viiva(alku,loppu, 300, -1)
+    # varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
+    # ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo', markersize = 1)
+    # ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo', markersize = 1)
     
     Ex, Ey = Epoints(X,Y, varaukset)
     ax1.streamplot(X,Y,Ex,Ey)
     ax2.quiver(X,Y,Ex,Ey)
     
-    fig.suptitle("Many lines of pointcharges")
-           
+    fig.suptitle("Many lines of pointcharges")           
     ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
     ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
+    plt.show()
 
 # testing the line integraalihässäkkä
 def simpslinetesti(intpoints = 10):
@@ -361,14 +340,24 @@ def simpslinetesti(intpoints = 10):
         
     ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
     ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
-    
+    plt.show()
     
 
 def main():
-    face()
-    testRod(2,1,1e-6,10)
+    
+    testRod(2,1,1e-6,11)
+    input("Press Enter to continue to charge points line test...")
+    start_time = time.time()
     linestest()
+    print ("Linetest did take ", time.time() - start_time, "s to run")
+    input("Press Enter to continue to simpson line integral test...")
+    start_time = time.time()
     simpslinetesti(12)
+    print ("Simpson linetest did take ", time.time() - start_time, "s to run")
+    input("Press Enter to continue to be happy at morning tired :) ")
+    start_time = time.time()
+    face()
+    print ("Face did take ", time.time() - start_time, "s to run")
  
     
     
