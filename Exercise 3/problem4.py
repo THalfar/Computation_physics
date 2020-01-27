@@ -129,34 +129,40 @@ def face():
     y = np.linspace(-5,5,50)
     X,Y = np.meshgrid(x,y)
     
-    fig, ax = plt.subplots(figsize=(10,10))
+    fig, (ax1,ax2) = plt.subplots(1,2,figsize=(20,10))
     
     alku = np.array([0,0])    
     varaukset = ympyra(alku,np.pi,2*np.pi, 1.5, 300,-1)    
-    ax.plot(varaukset[:,0], varaukset[:,1], 'bo')
+    ax1.plot(varaukset[:,0], varaukset[:,1], 'bo')
+    ax2.plot(varaukset[:,0], varaukset[:,1], 'bo')
     
     alku = np.array([-0.5,1])    
     silmat = ympyra(alku,0,2*np.pi, 0.3, 300,1)    
     varaukset = np.concatenate((varaukset, silmat), axis = 0)
-    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+    ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+    ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
     
     alku = np.array([0.5,1])    
     silmat = ympyra(alku,0,2*np.pi, 0.3, 300,1)    
     varaukset = np.concatenate((varaukset, silmat), axis = 0)
-    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+    ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
+    ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'ro')
     
     alku = np.array([-1,2])
     loppu = np.array([1,2])
     lisaviiva = viiva(alku,loppu, 100, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
         
     Ex, Ey = Epoints(X,Y, varaukset)
-    ax.streamplot(X,Y,Ex,Ey)
-    ax.set_aspect('equal')
-    plt.title("Face using streamplot and pointlines")
-    plt.xlabel("x-axis")
-    plt.ylabel("y-axis")
+    ax1.streamplot(X,Y,Ex,Ey)
+    ax2.quiver(X,Y,Ex,Ey)
+    
+    fig.suptitle("Face using charge points")
+           
+    ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
+    ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
     
   
 def Esimpsline(alku, loppu, n, Q, X, Y, Ex, Ey):
@@ -269,45 +275,50 @@ def linestest():
     y = np.linspace(-4,4,50)
     X,Y = np.meshgrid(x,y)
     
-    fig, ax = plt.subplots(figsize=(10,10))
+    fig, (ax1,ax2) = plt.subplots(1,2,figsize=(20,10))
     
     alku = np.array([0,0])
     loppu = np.array([2,-1])
     varaukset = viiva(alku,loppu,100,1)
-    ax.plot(varaukset[:,0], varaukset[:,1], 'ro')
+    ax1.plot(varaukset[:,0], varaukset[:,1], 'ro')
+    ax2.plot(varaukset[:,0], varaukset[:,1], 'ro')
     
     alku = np.array([0,0])
     loppu = np.array([-1,-1])
     lisaviiva = viiva(alku,loppu, 100, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
     
     alku = np.array([1,1])
     loppu = np.array([3,2])
     lisaviiva = viiva(alku,loppu, 100, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'bo')
     
     alku = np.array([-2,2])
     loppu = np.array([0,3])
     lisaviiva = viiva(alku,loppu, 100, 2)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
+    ax1.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
+    ax2.plot(varaukset[-100:,0], varaukset[-100:,1], 'ro')
     
     alku = np.array([-3,-3])
     loppu = np.array([3,-3])
     lisaviiva = viiva(alku,loppu, 300, -1)
     varaukset = np.concatenate((varaukset, lisaviiva), axis = 0)
-    ax.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
-    
-    
+    ax1.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
+    ax2.plot(varaukset[-300:,0], varaukset[-300:,1], 'bo')
     
     Ex, Ey = Epoints(X,Y, varaukset)
-    ax.streamplot(X,Y,Ex,Ey)
-    ax.set_aspect('equal')
-    plt.title("Many pointlines using streamplot")
-    plt.xlabel("x-axis")
-    plt.ylabel("y-axis")    
+    ax1.streamplot(X,Y,Ex,Ey)
+    ax2.quiver(X,Y,Ex,Ey)
+    
+    fig.suptitle("Many lines of pointcharges")
+           
+    ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
+    ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
 
 # testing the line integraalihässäkkä
 def simpslinetesti(intpoints = 10):
@@ -317,33 +328,39 @@ def simpslinetesti(intpoints = 10):
     X,Y = np.meshgrid(x,y)
     Ex, Ey = np.zeros_like(X), np.zeros_like(Y) 
     
-    fig, ax = plt.subplots(figsize=(10,10))
+    fig, (ax1, ax2) = plt.subplots(1,2, figsize=(20,10))
     
     alku = np.array([-2,0])
     loppu = np.array([2,0])
-    ax.plot([-2, 2], [0,0], '-r')
+    ax1.plot([-2, 2], [0,0], '-r')
+    ax2.plot([-2, 2], [0,0], '-r')
     Ex, Ey = Esimpsline(alku, loppu, intpoints,3, X, Y, Ex, Ey)
     
     alku = np.array([0,0])
     loppu = np.array([0,3])
-    ax.plot([0, 0], [0,3], '-b')
+    ax1.plot([0, 0], [0,3], '-b')
+    ax2.plot([0, 0], [0,3], '-b')
     Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
     
-    alku = np.array([0,0])
-    loppu = np.array([3,3])
-    ax.plot([0, 3], [0,3], '-b')
-    Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
+    # alku = np.array([0,0])
+    # loppu = np.array([3,3])
+    # ax1.plot([0, 3], [0,3], '-b')
+    # ax2.plot([0, 3], [0,3], '-b')
+    # Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
     
     alku = np.array([-1,-4])
     loppu = np.array([1,-4])
-    ax.plot([-1, 1], [-4,-4], '-b')
+    ax1.plot([-1, 1], [-4,-4], '-b')
+    ax2.plot([-1, 1], [-4,-4], '-b')
     Ex, Ey = Esimpsline(alku, loppu, intpoints,-1, X, Y, Ex, Ey)
-
-    ax.streamplot(X,Y,Ex,Ey)
-    plt.title("Simpson integrated lines using streamplot and {} points per line".format(intpoints))
-    plt.xlabel("x-axis")
-    plt.ylabel("y-axis")    
     
+    ax1.streamplot(X,Y,Ex,Ey)      
+    ax2.quiver(X,Y,Ex,Ey)
+    
+    fig.suptitle("Simpson integrated lines using {} points per integral".format(intpoints))
+        
+    ax1.set(xlabel='x-coord', ylabel='y-coord', title = "Streamplot")
+    ax2.set(xlabel='x-coord', ylabel='y-coord', title = "Quiver plot")
     
     
 
@@ -351,7 +368,7 @@ def main():
     face()
     testRod(2,1,1e-6,10)
     linestest()
-    simpslinetesti(13)
+    simpslinetesti(12)
  
     
     
