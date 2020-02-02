@@ -128,11 +128,11 @@ def main():
     
     tiheysviiva = []
     for i in range(viiva.shape[1]):        
-        tiheysviiva.append(splinter.eval3d(viiva[0,i], viiva[1,i], viiva[2,i]))
+        tiheysviiva.append(float(splinter.eval3d(viiva[0,i], viiva[1,i], viiva[2,i])))
         
     
     
-    plt.plot(tiheysviiva)
+    plt.plot(arange(0,500),tiheysviiva)
     
     
     
