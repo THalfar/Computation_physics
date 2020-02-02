@@ -1,0 +1,12 @@
+dfr_chargedensity1:
+l(O7-V1) =  1.92159(0) Å
+l(O1-V1) =  1.93300(0) Å
+angle:
+phi(O7-V1-O1) =  90.0000(0) deg.
+
+dfr_chargedensity2:
+l(O5-V3) =  2.06462(0) Å
+l(V3-O6) =  2.02530(0) Å
+angle:
+phi(O5-V3-O6) =  78.5718(0) deg.
+
