@@ -26,7 +26,7 @@ def testi():
         
         for j in range(papa.shape[1]):
             
-            papa[i,j]  = i+j
+            papa[i,j]  += i+j
     
     return papa
 
@@ -39,7 +39,8 @@ def kaka():
     for i in range(pau):
         
         lala.append(i**2)
-      
+     
+    return lala
     
 
 start_time = time.time()
