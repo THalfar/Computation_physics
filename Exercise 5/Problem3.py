@@ -225,7 +225,7 @@ def test_SOR():
     ax.set_ylabel("y-axis")
     plt.show()    
     
-SIZE = 100 # size of grid
+SIZE = 50 # size of grid
 def main():
     # first time ever with Numba :) i first let it compile these and then to the calculations with bigger data
     # Gives a lot of warning, but it works! Order of degree faster at least!
