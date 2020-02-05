@@ -147,6 +147,7 @@ def two_plates(size = 41):
     ax.set_yticklabels(-tickvalues)
     ax.set_xlabel("x-axis")
     ax.set_ylabel("y-axis")
+    plt.colorbar().set_label("Potential [V]")   
     plt.show()   
 
     U, V = np.gradient(phi)
@@ -158,16 +159,19 @@ def two_plates(size = 41):
     ax.set_ylabel("y-axis")    
     plt.show()   
 
-def face(size = 41):
+def face(size = 81):
     x = np.linspace(-1,1,size) 
     y = np.linspace(-1,1,size)    
     X,Y = np.meshgrid(x,y)
    
     phi = np.zeros_like(X) 
-    phi[30,10] = 1.5
-    phi[30,30] = 1.5
-    phi[10,10:30] = -1.5
-    phi[20:30,20] = -1
+    phi[60,20] = 2
+    phi[60,60] = 2
+    phi[20,20:60] = -1
+    phi[range(20,30), range(20,10,-1)] = 1.5
+    phi[range(20,30), range(60,70)] = 1.5
+    phi[40:60,40] = -1.5
+    
     
     phi = SOR(phi)
 
@@ -185,6 +189,7 @@ def face(size = 41):
     ax.set_yticklabels(-tickvalues)
     ax.set_xlabel("x-axis")
     ax.set_ylabel("y-axis")
+    plt.colorbar().set_label("Potential [V]")   
     plt.show()   
 
     U, V = np.gradient(phi)
@@ -195,10 +200,7 @@ def face(size = 41):
     ax.set_xlabel("x-axis")
     ax.set_ylabel("y-axis")
     plt.show()   
-    
-    
-    
-    
+        
 def main():
     SOR(np.zeros((9,9)))# compile..
     
@@ -209,6 +211,7 @@ def main():
         print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
     
     face()
+    
 
 if __name__=="__main__":
     main()    
