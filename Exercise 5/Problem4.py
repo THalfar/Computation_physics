@@ -11,6 +11,7 @@ from numba import jit
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.optimize import differential_evolution
 
 @jit
 def jacobi(phi, tol = 1e-6, step = 0.25):
@@ -64,7 +65,7 @@ def jacobi(phi, tol = 1e-6, step = 0.25):
         
     return phi_first
 
-@jit    
+@jit('float64(float64[:,:], float64, float64)')    
 def SOR(phi, tol = 1e-6, omega = 1.8 ):
     """ Implementation of Simultaneous Over Relaxation SOR
     
@@ -200,18 +201,62 @@ def face(size = 81):
     ax.set_xlabel("x-axis")
     ax.set_ylabel("y-axis")
     plt.show()   
-        
+    
+def optiome(omega, *args):
+    
+    phi = np.array([])
+    for rivi in args:
+        phi = np.vstack((phi, rivi)) if len(phi) else rivi
+    # print("hip")
+    start_time = time.time()    
+    testi = SOR(phi, tol = 1e-6, omega = omega )
+    return time.time() - start_time
+
+def testievoluution():
+    
+    size = 21
+    phi = np.zeros((size, size)) 
+    phi[1,2] = 2
+    phi[1,1] = 2
+    phi[20,1:4] = -1    
+    phi[11:19,8] = -1.5
+    
+    bound = [(1,2)]
+    testi = differential_evolution(optiome, bound, disp = True, args = phi)
+    print(testi.x)
+    
+    
+    
 def main():
-    SOR(np.zeros((9,9)))# compile..
+    # SOR(np.zeros((9,9)))# compile..
     
-    start_time = time.time()
-    gridsizes = [21,41,81] # TODO its only works with grids that have a value close to x=-0.3 etc... 
-    for size in gridsizes:
-        two_plates(size)
-        print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
+    # start_time = time.time()
+    # gridsizes = [21,41,81] # TODO its only works with grids that have a value close to x=-0.3 etc... 
+    # for size in gridsizes:
+    #     two_plates(size)
+    #     print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
     
-    face()
+    # face()
     
+  
+
+    testievoluution()
+    size = 21
+    phi = np.zeros((size, size)) 
+    phi[1,2] = 2
+    phi[1,1] = 2
+    phi[20,1:4] = -1    
+    phi[11:19,8] = -1.5
+    
+    start_time = time.time()    
+    papa = SOR(phi)
+    print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
+    
+    
+    
+    
+    
+ 
 
 if __name__=="__main__":
     main()    
