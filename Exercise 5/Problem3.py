@@ -173,9 +173,9 @@ def SOR(phi, tol = 1e-6, omega = 1.8 ):
     
     
 # Simple testing of jacobi
-def test_jacobi():    
-    x = np.linspace(0,1,SIZE) 
-    y = np.linspace(0,1,SIZE)   
+def test_jacobi(size = 50):    
+    x = np.linspace(0,1,size) 
+    y = np.linspace(0,1,size)   
     
     X, Y = np.meshgrid(x,y)
     phi = np.zeros_like(X) 
@@ -191,9 +191,9 @@ def test_jacobi():
     plt.show()
 
 # Simple testing of gauss-seidel    
-def test_gauss_seidel():    
-    x = np.linspace(0,1,SIZE) 
-    y = np.linspace(0,1,SIZE)   
+def test_gauss_seidel(size = 50):    
+    x = np.linspace(0,1,size) 
+    y = np.linspace(0,1,size)   
     
     X, Y = np.meshgrid(x,y)
     phi = np.zeros_like(X) 
@@ -209,9 +209,9 @@ def test_gauss_seidel():
     plt.show()    
     
 # Simple testing of SOR    
-def test_SOR():    
-    x = np.linspace(0,1,SIZE) 
-    y = np.linspace(0,1,SIZE)   
+def test_SOR(size = 50):    
+    x = np.linspace(0,1,size) 
+    y = np.linspace(0,1,size)   
     
     X, Y = np.meshgrid(x,y)
     phi = np.zeros_like(X) 
@@ -226,7 +226,7 @@ def test_SOR():
     ax.set_ylabel("y-axis")
     plt.show()    
     
-SIZE = 50 # size of grid
+
 def main():
     # first time ever with Numba :) i first let it compile these and then to the calculations with bigger data
     # Gives a lot of warning, but it works! Order of degree faster at least!

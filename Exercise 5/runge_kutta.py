@@ -27,16 +27,16 @@ def runge_kutta4(x,t,dt,func,**kwargs):
     if ('args' in kwargs):
         args = kwargs['args']
         F1 = func(x,t,*args)
-        F2 = ...
-        F3 = ...
-        F4 = ...
+        F2 = func(x + dt/2 * F1, t + dt/2, *args)
+        F3 = func(x + dt/2 * F2, t + dt/2, *args)
+        F4 = func(x + dt * F3, t + dt, *args)
     else:
         F1 = func(x,t)
-        F2 = ...
-        F3 = ...
-        F4 = ...
+        F2 = func(x + dt/2 * F1, t + dt/2)
+        F3 = func(x + dt/2 * F2, t + dt/2)
+        F4 = func(x + dt * F3, t + dt)
 
-    return ..., t+dt
+    return x + (dt/6) * (F1+2*F2+2*F3+F4), t+dt
 
 def pend(y, t, b, c):
     theta, omega = y
@@ -90,6 +90,27 @@ def solve_ivp_test(ax):
     ax.set_xlabel('t')
     ax.grid()
 
+def test_own_kutta():
+    
+    b = 0.25
+    c = 5.0
+    y0 = [np.pi - 0.1, 0.0]
+    t = np.linspace(0, 10, 101)
+    
+    sol_odeint = odeint(pend, y0, t, args=(b, c))
+    
+    sol_kutta = []
+    x = 1.0 * np.array(y0) 
+    dt = t[1] - t[0]
+    for i in range(len(t)):
+        sol_kutta.append(x) 
+        x, tp = runge_kutta4(x, t[i], dt, pend, args=(b,c))
+    
+    print("Max difference of odeint and Runge-Kutta4 : {}".
+          format(np.amax(np.abs(sol_odeint - sol_kutta))))
+    
+    
+
 def main():
 
     fig=figure()
@@ -103,6 +124,8 @@ def main():
     runge_kutta_test(ax3)
     ax3.set_title('own Runge-Kutta 4')
     show()
+    
+    test_own_kutta()
     
 
 
