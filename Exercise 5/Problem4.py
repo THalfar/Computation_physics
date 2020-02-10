@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.optimize import differential_evolution
 import numba as numba
+import matplotlib.animation as animation
 
 @jit
 def jacobi(phi, tol = 1e-6, step = 0.25):
@@ -67,10 +68,9 @@ def jacobi(phi, tol = 1e-6, step = 0.25):
     return phi_first
 
 @jit(float64(float64[:,:],float64,float64))    
-def SOR(phi, tol = 1e-6, omega = 1.8 ):
+def SOR(phi, tol = 1e-3, omega = 1.8):
     """ Implementation of Simultaneous Over Relaxation SOR
     
-
     Parameters
     ----------
     phi : numpy array
@@ -86,6 +86,7 @@ def SOR(phi, tol = 1e-6, omega = 1.8 ):
         Phi array after relaxation
 
     """
+    
     omega = numba.float_(omega)
     
     phi_bool = np.zeros_like(phi, dtype = bool)
@@ -97,6 +98,13 @@ def SOR(phi, tol = 1e-6, omega = 1.8 ):
     
     overtol = True
     
+    # Animation 
+    animate = False
+    ims = []
+    if animate:
+        fig = plt.figure(figsize=(15,10))
+        
+        
     while overtol:
         
         for i in range(1, phi.shape[0]-1):
@@ -118,6 +126,14 @@ def SOR(phi, tol = 1e-6, omega = 1.8 ):
         phi_first = np.copy(phi_last)
         phi_last = np.copy(phi)
         
+        if animate:            
+            image = plt.imshow(np.flipud(phi_first), cmap='jet', interpolation = 'spline16', animated = True)
+            ims.append([image])
+            
+    if animate:        
+        anime = animation.ArtistAnimation(fig, ims, interval = 250)
+        anime.save("Animaatio_face.mp4")
+        
     return phi_first
 
 def two_plates(size = 41):    
@@ -136,7 +152,7 @@ def two_plates(size = 41):
     phi[y_index_first:y_index_last, x1_index] = -1
     phi[y_index_first:y_index_last, x2_index] = 1
     
-    phi = SOR(phi, tol = 1e-8)
+    phi = SOR(phi)
 
     fig = plt.figure(figsize = (15,15))
     ax = fig.add_subplot(111)
@@ -204,61 +220,20 @@ def face(size = 81):
     ax.set_ylabel("y-axis")
     plt.show()   
 
-@jit    
-def optiome(omega, *args):
-    # print(numba.typeof(omega))
-    
-    phi = np.array([])
-    for rivi in args:
-        phi = np.vstack((phi, rivi)) if len(phi) else rivi
-    # print("hip")
-    # print(numba.typeof(phi))
-    start_time = time.time()    
-     = SOR(phi, tol = 1e-6, omega = omega )
-    return time.time() - start_time
 
-def testievoluution():
-    
-    size = 21
-    phi = np.zeros((size, size)) 
-    phi[1,2] = 2
-    phi[1,1] = 2
-    phi[20,1:4] = -1    
-    phi[11:19,8] = -1.5
-    
-    bound = [(1.0,2.0)]
-    testi = differential_evolution(optiome, bound, disp = True, args = phi)
-    print(testi.x)
-    
-    
+
     
 def main():
-    # SOR(np.zeros((9,9)))# compile..
+    SOR(np.zeros((9,9)))# compile..
     
     start_time = time.time()
-    gridsizes = [21,41,81,241] # TODO its only works with grids that have a value close to x=-0.3 etc... 
+    gridsizes = [21,41,81] 
     for size in gridsizes:
         two_plates(size)
         print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
     
     face()
-    
-  
 
-    # testievoluution()
-    # size = 21
-    # phi = np.zeros((size, size)) 
-    # phi[1,2] = 2
-    # phi[1,1] = 2
-    # phi[20,1:4] = -1    
-    # phi[11:19,8] = -1.5
-    
-    # start_time = time.time()    
-    # papa = SOR(phi)
-    # print ("SOR did take compiled with Numba gridsize {}: {}s".format(size ,time.time() - start_time))
-    
-    
-    
     
     
  
