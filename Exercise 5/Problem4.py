@@ -15,57 +15,6 @@ from scipy.optimize import differential_evolution
 import numba as numba
 import matplotlib.animation as animation
 
-@jit
-def jacobi(phi, tol = 1e-6, step = 0.25):
-    """ Implementation of Jacob method
-    
-    Parameters
-    ----------
-    phi : numpy array
-        Phi starting grid
-    tol : float
-        Tolerance when stop
-    step : float
-        Step size
-
-    Returns
-    -------
-    phi_first : numpy array
-        Phi grid after relaxation
-
-    """
-    
-    phi_bool = np.zeros_like(phi, dtype = bool)
-    phi_bool = np.where(phi != 0, True, False)
-    
-    sum_first = np.sum(phi)    
-    phi_first = np.copy(phi)
-    phi_last = np.copy(phi)
-    
-    overtol = True
-    
-    while overtol:
-        
-        for i in range(1, phi.shape[0]-1):
-            
-            for j in range(1,phi.shape[1]-1):
-                
-                if phi_bool[i,j] == True:
-                    continue
-                
-                phi_last[i,j] = step * (phi_first[i-1,j] + phi_first[i+1,j] + phi_first[i,j-1] + phi_first[i,j+1])
-                
-        sum_last = np.sum(phi_last)
-        
-        if np.abs(sum_last - sum_first) < tol:
-            overtol = False
-            
-        sum_first = sum_last
-        
-        phi_first = np.copy(phi_last)
-        phi_last = np.copy(phi)
-        
-    return phi_first
 
 @jit(float64(float64[:,:],float64,float64))    
 def SOR(phi, tol = 1e-3, omega = 1.8):
@@ -129,7 +78,7 @@ def SOR(phi, tol = 1e-3, omega = 1.8):
         if animate:            
             image = plt.imshow(np.flipud(phi_first), cmap='jet', interpolation = 'spline16', animated = True)
             ims.append([image])
-            
+                    
     if animate:        
         anime = animation.ArtistAnimation(fig, ims, interval = 250)
         anime.save("Animaatio_face.mp4")
@@ -153,7 +102,7 @@ def two_plates(size = 41):
     phi[y_index_first:y_index_last, x2_index] = 1
     
     phi = SOR(phi)
-
+    
     fig = plt.figure(figsize = (15,15))
     ax = fig.add_subplot(111)
     plt.imshow(np.flipud(phi), cmap='jet', interpolation='spline16') # y-starts from -1, need to flipflop 
@@ -190,10 +139,9 @@ def face(size = 81):
     phi[range(20,30), range(20,10,-1)] = 1.5
     phi[range(20,30), range(60,70)] = 1.5
     phi[40:60,40] = -1.5
-    
-    
+        
     phi = SOR(phi)
-
+    
     fig = plt.figure(figsize = (15,15))
     ax = fig.add_subplot(111)
     
@@ -222,7 +170,6 @@ def face(size = 81):
 
 
 
-    
 def main():
     SOR(np.zeros((9,9)))# compile..
     
@@ -234,9 +181,6 @@ def main():
     
     face()
 
-    
-    
- 
 
 if __name__=="__main__":
     main()    
