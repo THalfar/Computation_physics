@@ -11,12 +11,11 @@ from scipy.sparse import diags
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
-N = 101 # jaollinen 2
 
+N = 23
 grid = np.linspace(0,1,N)
 
 h = grid[1] - grid[0]
-
 A = np.zeros((N,N))
 b = np.zeros((N,))
 
@@ -49,11 +48,20 @@ plt.title("Plot right solution vs. finite element solution")
 plt.xlabel("Grid value")
 plt.ylabel("$\Phi$")
 
+
+#%%
+N1 = 10
+N2 = 23
+N = N1+N2
+
+grid = np.linspace(0,0.5,N1)
+grid = np.concatenate((grid, np.linspace(0.6,1,N2)))
+
 def hattu(x, idx, h):
     
     arvo = 0.0
     
-    if x > (idx-1)*h and x <= (idx)*h:
+    if x >= (idx-1)*h and x < (idx)*h: # TODO kysy! miten rajat?! 
         arvo = (x - (idx-1)*h) / h
         
     elif x > (idx)*h and x <= (idx+1)*h:
@@ -62,33 +70,38 @@ def hattu(x, idx, h):
     return arvo
 
 def Dhattu(x, idx, h):
-    
-    
-    
-    if x > (idx-1)*h and x <= (idx)*h:
+       
+    if x >= (idx-1)*h and x < (idx)*h:
         return 1 / h
         
-    elif x > (idx)*h and x <= (idx+1)*h:
+    elif x >= (idx)*h and x < (idx+1)*h:
         return -1 / h
         
     return 0.0
     
-    
+N_tiheys = 1000
+tiheys = np.linspace(0,1,N_tiheys)
+A = np.zeros((N,N))
 
-papa = []
-tiheys = np.linspace(0,1,400)
-for i in range(len(tiheys)):
-    papa.append(Dhattu(tiheys[i], 1, h))
-
-papa = np.array(papa)
+for i in range(1, N-1):
     
-papa2 = []
-for i in range(len(tiheys)):
-    papa2.append(Dhattu(tiheys[i], 10, h))
-papa2 = np.array(papa2)    
-    
-tata = papa2*papa
+    for j in range(1,N-1):
+        
+        h = grid[j] - grid[j-1]
+        
+        ueka = np.zeros(len(tiheys))
+        for ii in range(len(tiheys)):
+            ueka[ii] = Dhattu(tiheys[ii], i, h)
 
+        
+        utoka = np.zeros(len(tiheys))    
+        for ii in range(len(tiheys)):
+            utoka[ii] = Dhattu(tiheys[ii], j, h)
+        
+        tulo = ueka*utoka    
+        A[i,j] = simps(tulo, tiheys)
+            
+        
 
 
 
