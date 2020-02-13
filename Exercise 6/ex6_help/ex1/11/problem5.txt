@@ -1,0 +1,74 @@
+# create new environment, e.g., at /home/py_envs/ directory
+python3 -m venv compphys_test
+source compphys_test/bin/activate
+
+# install dependencies
+pip install numpy
+pip install setuptools
+pip install nose
+
+# follow instructions below
+
+mkdir num_calculus
+mkdir num_calculus/num_calculus
+cd num_calculus
+cat > setup.py << EOF
+from setuptools import setup
+
+setup(name='num_calculus',
+      version='0.1',
+      description='Numerical differentiation routines',
+      url='',
+      author='IK Comp Phys',
+      author_email='IKcomppys@example.com',
+      license='MIT',
+      packages=['num_calculus'],
+      install_requires=['numpy'],
+      zip_safe=False,
+      test_suite='nose.collector',
+      tests_require=['nose'])
+EOF
+
+cd num_calculus
+
+echo 'from .differentiation import first_derivative' > __init__.py
+
+cat > differentiation.py << EOF
+def first_derivative(function, x, dx ):
+    """ 
+    This calculates the first derivative with
+    symmetric two point formula, which has O(h^2)
+    accuracy. See, e.g., FYS-4096 lecture notes.
+    """
+    return (function(x+dx)-function(x-dx))/2/dx
+EOF
+
+mkdir tests
+cd tests
+
+cat > test_num_calculus.py << EOF
+from unittest import TestCase
+
+from num_calculus.differentiation import first_derivative
+import numpy as np
+    
+class TestNumCalculus(TestCase):
+
+    def test_first_derivative(self):
+        def test_function(x): return np.sin(x)
+        def test_function_derivative(x): return np.cos(x)
+        x = 0.4
+        dx = 0.02
+        df_num = first_derivative(test_function,x,dx)
+        df_analytical = test_function_derivative(x)
+        self.assertTrue(abs(df_num-df_analytical)<0.01)
+EOF
+
+cd ..
+cd ..
+
+# make only a local install
+pip install .
+
+# run the tests (i.e. the single test)
+python setup.py test
