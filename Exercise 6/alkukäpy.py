@@ -57,7 +57,7 @@ N = N1+N2
 grid = np.linspace(0,0.5,N1)
 grid = np.concatenate((grid, np.linspace(0.6,1,N2)))
 
-def hattu(x, idx, h):
+def hattu(x, idx, h): # korjaa gridi tähän
     
     arvo = 0.0
     
