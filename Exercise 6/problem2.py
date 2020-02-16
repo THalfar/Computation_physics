@@ -42,7 +42,7 @@ def problem2a(N=23, plot = False):
     val_sol = np.sin(np.pi * grid)
     
     if plot:
-        fig = plt.figure(figsize = (15,10))
+        plt.figure(figsize = (15,10))
         plt.plot(grid, val_sol, 'r', label = "Right values")
         plt.plot(grid, fin_sol, 'bo', label = "FEM values")
         plt.legend()
@@ -180,14 +180,14 @@ def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
  
 # plot how error behaves with different amount of base functions    
 def plot_errors():
-
+ 
     x = np.linspace(0,1,1000)
     phi_oik = np.sin(np.pi*x)
     phi = np.pi**2 * np.sin(np.pi * x)
     
     plt.figure(figsize=(15,10)) 
     
-    spacing = np.geomspace(3,100, 10, dtype = int)
+    spacing = np.geomspace(3,100, 32, dtype = int)
     
     errors = []
     
@@ -222,12 +222,33 @@ def problem2c(spacing = 8):
     print("")
     print(testa)
 
+# Test an example with changing grid size
+def changing_grid():
+    
+    x = np.linspace(0,1,1000)
+    phi_oik = np.sin(np.pi*x)
+    phi = np.pi**2 * np.sin(np.pi * x)
+    
+    grid = np.linspace(0,0.7,4)
+    grid = np.hstack((grid, np.linspace(0.75,1,10)))
+    testa, _ = FEMhat(grid, x, phi)
+    
+    plt.figure(figsize=(15,10))
+    plt.plot(x, phi_oik,  'b-' , label = "Right value")
+    plt.plot(x, testa, 'r', label ="FEM with changing grid")
+    plt.legend()
+    plt.xlabel("X-axis")
+    plt.ylabel("$\Phi$")
+    plt.title("Plot with changing grid size at x=0.7")
+    plt.show()   
+
    
 def main():
     problem2a(plot = True)
     plot_FEM()
     plot_errors()
     problem2c()
+    changing_grid()
     
 if __name__=="__main__":
     main()    
