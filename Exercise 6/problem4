@@ -1,1 +1,27 @@
-asfsafsaffasfasfsa
+Opittuja asioita:
+
+- FEM menetelmä josta on vaan aikaisemmin kuullut.
+- zeros_like() funktio joka säästää pientä kirjoittelua
+- Numeeristen algoritmien tarkastamista ja virheen arviointia
+- Numby
+- Plottaamisen taitoa lisää
+
+Hyötyä:
+
+- Algoritmien opettelu ei mene koskaan hukkaan.
+- Signaalinkäpistelyn puolella varmasti tulee olemaan hyötyä fyysikoiden
+  käyttämistä numeerisista algoritmeista.
+
+Sujunut:
+
+  - Arvosana 4
+
+  Koodien kirjoittamiseen on keskimäärin per laskari mennyt 3-8h.
+  Enemmän pitäisi nähdä vaivaa teorian opetteluun. Suoraan vaan iskenyt
+  laskareihin kiinni koodaamaan. Tämä muuttuu, kun seuraavalla periodilla
+  ei enää computer vision kurssin luennot mene päälekkäin.
+  Oma mieli toimii niin, että kun näkee jotain uutta luennolla siitä innostuu
+  ja sitten ottaa lisää selvää itse. Tämä ollut ongelmallista, kun ei ole luentoja
+  päässyt seuraamaan, niin ei ole teoriapuolta tullut opiskeltua.
+  Ystävä joka aiemmin kurssin käynyt, sanoi että kurssin toisella puoliskolla
+  asiat oikeasti vaikeutuvat. Joten hyvä, että silloin tulee pääsee luennoille.

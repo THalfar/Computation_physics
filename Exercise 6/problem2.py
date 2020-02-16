@@ -43,8 +43,8 @@ def problem2a(N=23, plot = False):
     
     if plot:
         fig = plt.figure(figsize = (15,10))
-        plt.plot(grid, val_sol, 'r', label = "5Right values")
-        plt.plot(grid, fin_sol, 'bo', label = "Fin values")
+        plt.plot(grid, val_sol, 'r', label = "Right values")
+        plt.plot(grid, fin_sol, 'bo', label = "FEM values")
         plt.legend()
         plt.title("Plot right solution vs. finite element solution")
         plt.xlabel("Grid value")
@@ -76,7 +76,7 @@ def hat(idx, grid, x):
     
     h_first = grid[idx] - grid[idx-1]
     h_last = grid[idx+1] - grid[idx]
-    
+    # Using boolean to get fast code, that this can take whole x axis in
     out = (x > grid[idx-1])*(x <= grid[idx]) * ((x - grid[idx-1])/h_first) + \
         (x > grid[idx])*(x <= grid[idx+1]) * ((grid[idx+1] - x)/h_last) 
         
@@ -105,7 +105,7 @@ def Dhat(idx, grid, x):
     
     h_first = grid[idx] - grid[idx-1]
     h_last = grid[idx+1] - grid[idx]
-    
+    # using b oolean to get fast code, that this can get x axis in
     out = (x > grid[idx-1])*(x <= grid[idx]) * (1/h_first) + \
         (x > grid[idx])*(x <= grid[idx+1]) * ( -1/h_last)
         
@@ -134,7 +134,7 @@ def FEMhat(grid, x, phi):
     
     N = len(grid)
     A = np.zeros((N,N))
-    
+    # Calculate A matrix values 
     for i in range(1, N-1):    
         for j in range(1, N-1):
         
