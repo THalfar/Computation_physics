@@ -8,7 +8,6 @@ Created on Wed Feb  5 16:42:04 2020
 
 import numpy as np
 from numba import jit, float64
-import time
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.optimize import differential_evolution

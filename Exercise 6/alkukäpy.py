@@ -9,8 +9,11 @@ Created on Thu Feb 13 14:52:50 2020
 import numpy as np
 from scipy.sparse import diags
 import matplotlib.pyplot as plt
-from scipy.integrate import simps
+from scipy.integrate import simps, trapz
+from numba import jit
+import time
 
+#%%
 
 N = 23
 grid = np.linspace(0,1,N)
@@ -50,12 +53,12 @@ plt.ylabel("$\Phi$")
 
 
 #%%
-N1 = 10
-N2 = 23
-N = N1+N2
+N = 23
+# N2 = 23
+# N = N1+N2
 
-grid = np.linspace(0,0.5,N1)
-grid = np.concatenate((grid, np.linspace(0.6,1,N2)))
+grid = np.linspace(0,1,N)
+# grid = np.concatenate((grid, np.linspace(0.6,1,N2)))
 
 def hattu(x, idx, h): # korjaa gridi tähän
     
@@ -92,7 +95,6 @@ for i in range(1, N-1):
         ueka = np.zeros(len(tiheys))
         for ii in range(len(tiheys)):
             ueka[ii] = Dhattu(tiheys[ii], i, h)
-
         
         utoka = np.zeros(len(tiheys))    
         for ii in range(len(tiheys)):
@@ -102,8 +104,74 @@ for i in range(1, N-1):
         A[i,j] = simps(tulo, tiheys)
             
         
+#%%
+
+grid = np.linspace(0,1,4)
+# gridU = np.linspace(0.8,1, 23)
+# grid = np.concatenate((grid, gridU))
+x = np.linspace(0,1,1000)
+phi = np.pi**2 * np.sin(np.pi * x)
+
+@jit
+def hat(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * ((x - grid[idx-1])/h_first) + \
+        (x > grid[idx])*(x <= grid[idx+1]) * ((grid[idx+1] - x)/h_last) 
+        
+    return out
+
+@jit
+def Dhat(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * (1/h_first) + \
+        (x > grid[idx])*(x <= grid[idx+1]) * ( -1/h_last)
+        
+    return out
+    
+N = len(grid)
+A = np.zeros((N,N))
+
+for i in range(1, N-1):    
+    for j in range(1, N-1):
+        
+        ueka = Dhat(j, grid, x)
+        utoka = Dhat(i, grid, x)
+        A[i,j] = simps(ueka*utoka, x)
+        
+A = A[1:-1, 1:-1]
+        
+b = np.zeros((N,1))
+for i in range(N):    
+    b[i] =  simps(hat(i, grid,x)*phi, x)
+b = b[1:-1]
+
+a = np.linalg.solve(A,b)      
+a = np.vstack((0,a,0))
 
 
+testa = np.zeros(len(x))
+for i, ind in enumerate(a):
+    testa += ind*hat(i, grid, x)
+
+phi_oik = np.sin(np.pi*x)
+
+fig = plt.figure(figsize=(15,10))
+plt.plot(x, phi_oik, label = "Oikea")
+plt.plot(x, testa, label = "Laskettu")        
+plt.legend()
+plt.show()        
+        
+virhe = sum(np.abs(testa-phi_oik))
+print(virhe)
+
+    
+    
 
     
     
