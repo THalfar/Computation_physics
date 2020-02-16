@@ -3,7 +3,7 @@
 """
 Created on Sun Feb 16 16:49:11 2020
 
-@author: fobia
+@author: halfar
 """
 
 import numpy as np
@@ -159,7 +159,7 @@ def FEMhat(grid, x, phi):
     return out, A
    
 # plot few different FEM base functions     
-def plot_FEM(spacing = [3,5,7,13, 21], x_space = 1000):
+def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
     
     x = np.linspace(0,1,x_space)
     phi_oik = np.sin(np.pi*x)
@@ -169,7 +169,7 @@ def plot_FEM(spacing = [3,5,7,13, 21], x_space = 1000):
     for n in spacing:
         grid = np.linspace(0,1,n)
         testa, _ = FEMhat(grid,x, phi)
-        plt.plot(x, testa, label = n)        
+        plt.plot(x, testa, label = "Basis num: {}".format(n) )        
         
     plt.plot(x, phi_oik, label = "Right value")
     plt.legend()
