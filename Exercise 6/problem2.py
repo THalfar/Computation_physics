@@ -53,7 +53,52 @@ def problem2a(N=23, plot = False):
     
     return A
 
-#%%
+@jit # for testing x^2 poly
+def p2(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * (((x - grid[idx])/h_first)**2 -1) + \
+         (x > grid[idx])*(x <= grid[idx+1]) * (((x - grid[idx])/h_last)**2 - 1)
+        
+    return -out
+
+@jit # for testing D x^2 = 2x :)       
+def Dp2(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * (2*((x - grid[idx])/h_first)) + \
+         (x > grid[idx])*(x <= grid[idx+1]) * (2*((x - grid[idx])/h_last))
+        
+    return -out
+
+
+@jit # testing legendre polynomial p=2 so its normed :  int leg2(x), x from -1 to 1 = 1
+def legendre2(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * (3*((x - grid[idx])/h_first)**2 -1)/2 + \
+         (x > grid[idx])*(x <= grid[idx+1]) * (3*((x - grid[idx])/h_last)**2 -1)/2
+        
+    return out
+
+@jit # legendre polynomial p=2 derivate         
+def Dlegendre2(idx, grid, x):
+    
+    h_first = grid[idx] - grid[idx-1]
+    h_last = grid[idx+1] - grid[idx]
+    
+    out = (x > grid[idx-1])*(x <= grid[idx]) * (3*((x - grid[idx])/h_first)) + \
+         (x > grid[idx])*(x <= grid[idx+1]) * (3*((x - grid[idx])/h_last))
+        
+    return np.abs(out)
+            
+
 @jit
 def hat(idx, grid, x):
     """
@@ -112,41 +157,46 @@ def Dhat(idx, grid, x):
     return out
 
 
-def FEMhat(grid, x, phi):
+def FEM(fun, Dfun, grid, x, phi):
     """
-    Finited Element Method with hat base functions
+    Calculates Finited Element Method using a user given basis 
 
     Parameters
     ----------
+    fun : function
+        basis function
+    Dfun : function
+        basis function derivate
     grid : np.array
-        grid of base function values
+        basis function grid
     x : np.array
-        real space where calculate FEM values
+        real space where operate
     phi : np.array
-        second derivate of unkown function
+        second derivate of unknown function at x points
 
     Returns
     -------
     out : np.array
         FEM result array
+    A : np.array(N,N)
+        A matrix
 
     """
-    
     N = len(grid)
     A = np.zeros((N,N))
     # Calculate A matrix values 
     for i in range(1, N-1):    
         for j in range(1, N-1):
         
-            ueka = Dhat(j, grid, x)
-            utoka = Dhat(i, grid, x)
+            ueka = Dfun(j, grid, x)
+            utoka = Dfun(i, grid, x)
             A[i,j] = simps(ueka*utoka, x)
             
     A = A[1:-1, 1:-1]
         
     b = np.zeros((N,1))
     for i in range(N):    
-        b[i] =  simps(hat(i, grid,x)*phi, x)
+        b[i] =  simps(fun(i, grid,x)*phi, x)
     b = b[1:-1]
 
     a = np.linalg.solve(A,b)      
@@ -154,9 +204,10 @@ def FEMhat(grid, x, phi):
     
     out = np.zeros(len(x))
     for i, ind in enumerate(a):
-        out += ind*hat(i, grid, x)
+        out += ind*fun(i, grid, x)
         
     return out, A
+
    
 # plot few different FEM base functions     
 def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
@@ -168,7 +219,7 @@ def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
     plt.figure(figsize=(15,10))      
     for n in spacing:
         grid = np.linspace(0,1,n)
-        testa, _ = FEMhat(grid,x, phi)
+        testa, _ = FEM(hat, Dhat, grid,x, phi)
         plt.plot(x, testa, label = "Basis num: {}".format(n) )        
         
     plt.plot(x, phi_oik, label = "Right value")
@@ -179,7 +230,7 @@ def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
     plt.show()   
  
 # plot how error behaves with different amount of base functions    
-def plot_errors():
+def plot_errors(num = 32):
  
     x = np.linspace(0,1,1000)
     phi_oik = np.sin(np.pi*x)
@@ -187,13 +238,13 @@ def plot_errors():
     
     plt.figure(figsize=(15,10)) 
     
-    spacing = np.geomspace(3,100, 32, dtype = int)
+    spacing = np.geomspace(3,100, num, dtype = int)
     
     errors = []
     
     for n in spacing:
         grid = np.linspace(0,1,n)
-        testa, _ = FEMhat(grid,x, phi)
+        testa, _ = FEM(hat, Dhat, grid,x, phi)
         errors.append(np.mean(np.abs(testa-phi_oik)))
     
     plt.figure(figsize=(15,10))    
@@ -212,7 +263,7 @@ def problem2c(spacing = 8):
     phi = np.pi**2 * np.sin(np.pi * x)
     
     grid = np.linspace(0,1,spacing)
-    _ , testa = FEMhat(grid,x, phi)
+    _ , testa = FEM(hat, Dhat,grid,x, phi)
     right = problem2a(spacing)
     
     print("Right A matrix:")    
@@ -231,7 +282,7 @@ def changing_grid():
     
     grid = np.linspace(0,0.7,4)
     grid = np.hstack((grid, np.linspace(0.75,1,10)))
-    testa, _ = FEMhat(grid, x, phi)
+    testa, _ = FEM(hat, Dhat, grid, x, phi)
     
     plt.figure(figsize=(15,10))
     plt.plot(x, phi_oik,  'b-' , label = "Right value")
@@ -242,6 +293,45 @@ def changing_grid():
     plt.title("Plot with changing grid size at x=0.7")
     plt.show()   
 
+def legendretest(spacing = [3,4,5,6, 101], x_space = 1000):
+    
+    x = np.linspace(0,1,x_space)
+    phi_oik = np.sin(np.pi*x)
+    phi = np.pi**2 * np.sin(np.pi * x)
+
+    plt.figure(figsize=(15,10))      
+    for n in spacing:
+        grid = np.linspace(0,1,n)
+        testa, _ = FEM(legendre2, Dlegendre2,grid,x, phi)
+        plt.plot(x, testa, label = "Basis num: {}".format(n) )        
+        
+    plt.plot(x, phi_oik, label = "Right value")
+    plt.legend()
+    plt.xlabel("X-axis")
+    plt.ylabel("$\Phi$")
+    plt.title("Try legendre polynomial 2 scaled to [-1,1]")
+    plt.show()   
+    
+def poltest(spacing = [3,4,5,6, 101], x_space = 1000):
+    
+    x = np.linspace(0,1,x_space)
+    phi_oik = np.sin(np.pi*x)
+    phi = np.pi**2 * np.sin(np.pi * x)
+
+    plt.figure(figsize=(15,10))      
+    for n in spacing:
+        grid = np.linspace(0,1,n)
+        testa, _ = FEM(p2, Dp2,grid,x, phi)
+        plt.plot(x, testa, label = "Basis num: {}".format(n) )        
+        
+    plt.plot(x, phi_oik, label = "Right value")
+    plt.legend()
+    plt.xlabel("X-axis")
+    plt.ylabel("$\Phi$")
+    plt.title("Try x^2 scaled to [-1,1]")
+    plt.show()       
+ 
+    
    
 def main():
     problem2a(plot = True)
@@ -249,6 +339,17 @@ def main():
     plot_errors()
     problem2c()
     changing_grid()
+    
+    # grid = np.linspace(0,1,10)
+    # x = np.linspace(0,1,1000)
+    # testa = legendre2(5, grid, x)    
+    # plt.plot(x, testa)
+    # legendretest()
+    # poltest()
+    
+    
+    
+    
     
 if __name__=="__main__":
     main()    
