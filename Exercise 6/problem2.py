@@ -13,7 +13,7 @@ from scipy.integrate import simps
 from numba import jit
 
 
-#%% Problem 2 a
+# Problem 2 a
 def problem2a(N=23, plot = False):
 
     grid = np.linspace(0,1,N)
@@ -230,9 +230,9 @@ def plot_FEM(spacing = [3,5,7,21], x_space = 1000):
     plt.show()   
  
 # plot how error behaves with different amount of base functions    
-def plot_errors(num = 32):
+def plot_errors(num = 32, x_space = 1000):
  
-    x = np.linspace(0,1,1000)
+    x = np.linspace(0,1,x_space)
     phi_oik = np.sin(np.pi*x)
     phi = np.pi**2 * np.sin(np.pi * x)
     
@@ -257,9 +257,9 @@ def plot_errors(num = 32):
     plt.show()
  
 # Compare right A with a FEM A    
-def problem2c(spacing = 8):
+def problem2c(spacing = 8, x_space = 1000):
     
-    x = np.linspace(0,1,1000)
+    x = np.linspace(0,1,x_space)
     phi = np.pi**2 * np.sin(np.pi * x)
     
     grid = np.linspace(0,1,spacing)
@@ -280,8 +280,8 @@ def changing_grid():
     phi_oik = np.sin(np.pi*x)
     phi = np.pi**2 * np.sin(np.pi * x)
     
-    grid = np.linspace(0,0.7,4)
-    grid = np.hstack((grid, np.linspace(0.75,1,10)))
+    grid = np.linspace(0,0.5,3)
+    grid = np.hstack((grid, np.linspace(0.55,1,10)))
     testa, _ = FEM(hat, Dhat, grid, x, phi)
     
     plt.figure(figsize=(15,10))
@@ -335,17 +335,18 @@ def poltest(spacing = [3,4,5,6, 101], x_space = 1000):
    
 def main():
     problem2a(plot = True)
-    plot_FEM()
-    plot_errors()
-    problem2c()
-    changing_grid()
+    # plot_FEM()
+    # plot_errors(32, 1000)
+    # problem2c(8, 2345)
+    # changing_grid()
     
+
+    # poltest()    
     # grid = np.linspace(0,1,10)
     # x = np.linspace(0,1,1000)
     # testa = legendre2(5, grid, x)    
     # plt.plot(x, testa)
     # legendretest()
-    # poltest()
     
     
     
