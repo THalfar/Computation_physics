@@ -293,7 +293,7 @@ def changing_grid():
     plt.title("Plot with changing grid size at x=0.7")
     plt.show()   
 
-def legendretest(spacing = [3,4,5,6, 101], x_space = 1000):
+def legendretest(spacing = [3,4,5,6, 42], x_space = 1000):
     
     x = np.linspace(0,1,x_space)
     phi_oik = np.sin(np.pi*x)
@@ -312,7 +312,7 @@ def legendretest(spacing = [3,4,5,6, 101], x_space = 1000):
     plt.title("Try legendre polynomial 2 scaled to [-1,1]")
     plt.show()   
     
-def poltest(spacing = [3,4,5,6, 101], x_space = 1000):
+def poltest(spacing = [3,4,5,6, 42], x_space = 1000):
     
     x = np.linspace(0,1,x_space)
     phi_oik = np.sin(np.pi*x)
@@ -334,19 +334,19 @@ def poltest(spacing = [3,4,5,6, 101], x_space = 1000):
     
    
 def main():
-    problem2a(plot = True)
+    # problem2a(plot = True)
     # plot_FEM()
-    # plot_errors(32, 1000)
+    # plot_errors(32, 5000)
     # problem2c(8, 2345)
     # changing_grid()
     
 
-    # poltest()    
+    poltest()    
     # grid = np.linspace(0,1,10)
     # x = np.linspace(0,1,1000)
     # testa = legendre2(5, grid, x)    
     # plt.plot(x, testa)
-    # legendretest()
+    legendretest()
     
     
     
