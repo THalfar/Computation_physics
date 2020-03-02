@@ -77,9 +77,9 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax):
 
 def main():
     
-    x = np.linspace(-3, 3 , 11)
-    y = np.linspace(-3, 3 , 11)
-    z = np.linspace(-3, 3 , 11)
+    x = np.linspace(-3, 3 , 21)
+    y = np.linspace(-3, 3 , 21)
+    z = np.linspace(-3, 3 , 21)
     
     X, Y, Z = np.meshgrid(x, y, z)
     
@@ -92,8 +92,8 @@ def main():
     
     start_time = time.time()
     
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'x', 2, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'x', 2, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'x', 2, 1, 11, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2.5, 'x', 2, 1, 11, ax)
         
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'y', 2, 1, 42, ax)
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'y', 2, 1, 42, ax)
