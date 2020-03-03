@@ -5,6 +5,7 @@ Created on Wed Feb 26 12:11:12 2020
 
 @author: halfar
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
@@ -64,7 +65,7 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
     # Place coordinates where make an current circle
     x, y, z = place
      
-    # Use axis parameter to 
+    # Use axis parameter to determine in which axis the circle rotates
     if axis == 'x':        
         for i in range(pieces):
             wire_elements[i,:] = (x, y + radius*np.cos(dt*i), z + radius*np.sin(dt*i))
@@ -122,7 +123,7 @@ def test_algorithm():
     """
     Test the algorithm using gridspace 21 and comparing analytical 
     and numerical result using error abs sum and plotting
-    this to logarithmical scale comparing different elements 
+    this to logarithmical scale comparing different ring elements 
     amount -> If plot is linear, error is polynomial and algorithm
     is working.
 
@@ -132,7 +133,7 @@ def test_algorithm():
 
     """
     # Grid spacing from where calculate errors
-    space = np.geomspace(5, 123, 10, dtype = int) 
+    space = np.geomspace(10, 50, 10, dtype = int) 
     
     r = 2 # radius
     i = 1 # current
@@ -160,8 +161,11 @@ def test_algorithm():
         # Take value along axis where analytical function is known
         Bx_num = Bx[10, :, 10]
         errors.append(np.sum(np.abs(Bx_num - Bright)))
+        
+    errors = np.array(errors)   
     # Plot the errors as function of line element amount    
-    plt.scatter(space, np.array(errors), facecolor = 'red')
+    plt.figure(figsize = (13,13))    
+    plt.scatter(space, errors, facecolor = 'red')    
     plt.yscale('log')
     plt.xscale('log')
     plt.title("Error plot algorithm with grid size 21")
@@ -169,7 +173,7 @@ def test_algorithm():
     plt.ylabel("Abs. error sum")
 
 
-def two_circle(gridsize = 11):
+def two_circle(gridsize = 11, elements = 42):
     """
     Plot two circle along x-axis as required in assigment
 
@@ -183,6 +187,11 @@ def two_circle(gridsize = 11):
     None.
 
     """
+    # Need to have axis zero point to have a good slice of ringworld for streamplot
+    if gridsize % 2 == 0:
+        print("Gridsize must be uneven!")
+        return 
+    
     x = np.linspace(-3, 3 , gridsize)
     y = np.linspace(-3, 3 , gridsize)
     z = np.linspace(-3, 3 , gridsize)
@@ -200,10 +209,11 @@ def two_circle(gridsize = 11):
     
     # We have as assigment says two circle that have radius = 1 and
     # are 4 units away from each other with current 1 Ampere
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-2,0,0), 'x', 2, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (2,0,0), 'x', 2, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-2,0,0), 'x', 2, 1, elements, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (2,0,0), 'x', 2, 1, elements, ax)
     
-    print ("RingWorld with 2 rings did take: ", time.time() - start_time, "s to run")
+    print ("Ringworld with two ring and {} grid with {} elements per ring did take: {:.2f} s to run "
+           .format(gridsize, elements, time.time() - start_time))
         
     # Using logarithm to scale the arraow length
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
@@ -211,7 +221,7 @@ def two_circle(gridsize = 11):
     ax.set_xlabel("X-axis [m]")
     ax.set_ylabel("Y-axis [m]")
     ax.set_zlabel("Z-axis [m]")
-    ax.set_title("Ringworld of two ring in x-axis with mu=1 and logaritm arrow length")   
+    ax.set_title("Ringworld of two ring with mu=1, log arrow length, gridsize {} and {} elements per ring".format(gridsize, elements))
     plt.show()
     
     # Convert magnetic field to teslas by multiplying with MU
@@ -221,17 +231,20 @@ def two_circle(gridsize = 11):
     
     fig = plt.figure(figsize  = (13,13))
     ax = fig.gca()
-    norm = np.sqrt(Bx[:,:,5]**2 + By[:,:,5]**2 + Bz[:,:,5]**2)
-    strm = ax.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5], linewidth = 2, color = norm, cmap='plasma')
+    # take index where axis is zero (so can use different gridsizes automatically)
+    index = np.where(x==0)[0].item()
+    norm = np.sqrt(Bx[:,:,index]**2 + By[:,:,index]**2 + Bz[:,:,index]**2)
+    strm = ax.streamplot(X[:,:,index], Y[:,:, index], Bx[:,:,index], By[:,:,index], 
+                         linewidth = 2, color = norm, cmap='plasma')
     clb = plt.colorbar(strm.lines)
     clb.set_label("Magnetic field strength [T]")
     ax.set_xlabel("X-axis [m]")
     ax.set_ylabel("Y-axis [m]")
-    ax.set_title("Stream plot from slice at z=0")
+    ax.set_title("Stream plot from slice at z=0 and gridsize {} and {} elements per ring".format(gridsize, elements))
     plt.show()
     
    
-def ringworld(gridsize = 11):
+def ringworld(gridsize = 11, elements = 42):
     """
     Calculates four rings that magnifys each other magnetic field 
     using currents oppositely directed
@@ -246,6 +259,11 @@ def ringworld(gridsize = 11):
     None.
 
     """  
+    # Need to have axis zero point to have a good slice of ringworld for streamplot
+    if gridsize % 2 == 0:
+        print("Gridsize must be uneven!")
+        return 
+    
     x = np.linspace(-2.5, 2.5 , gridsize)
     y = np.linspace(-2.5, 2.5 , gridsize)
     z = np.linspace(-2.5, 2.5 , gridsize)
@@ -261,44 +279,46 @@ def ringworld(gridsize = 11):
     
     start_time = time.time()
     # Initialize rings..
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1.1,0,0), 'y', 0.8, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-1.1,0,0), 'y', 0.8, -1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,1.1,0), 'x', 0.8, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,-1.1,0), 'x', 0.8, -1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1.1,0,0), 'y', 0.8, 1, elements, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-1.1,0,0), 'y', 0.8, -1, elements, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,1.1,0), 'x', 0.8, 1, elements, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,-1.1,0), 'x', 0.8, -1, elements, ax)
     
-    print ("Ringworld with four ring did take: ", time.time() - start_time, "s to run")
+    print ("Ringworld with four ring and {} grid with {} elements per ring did take: {:.2f} s to run "
+           .format(gridsize, elements, time.time() - start_time))
     
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
     ax.quiver(X,Y,Z,log(Bx),log(By),log(Bz),  alpha = 0.6 )
     ax.set_xlabel("X-axis [m]")
     ax.set_ylabel("Y-axis [m]")
     ax.set_zlabel("Z-axis [m]")
-    ax.set_title("Ringworld with four rings with mu=1 and logaritm arrow length")   
+    ax.set_title("Ringworld of four ring with mu=1, log arrow length, gridsize {} and {} elements per ring".format(gridsize, elements))
     plt.show()
     
     # Convert magnetic field to teslas by multiplying with MU
     Bx *= MU
     By *= MU
     Bz *= MU
-    
+        
     fig = plt.figure(figsize  = (13,13))
     ax = fig.gca()
-    norm = np.sqrt(Bx[:,:,5]**2 + By[:,:,5]**2 + Bz[:,:,5]**2)
-    strm = ax.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5], linewidth = 2, color = norm, cmap='plasma')
+    idx = np.where(x==0)[0].item()
+    norm = np.sqrt(Bx[:,:,idx]**2 + By[:,:,idx]**2 + Bz[:,:,idx]**2)
+    strm = ax.streamplot(X[:,:,idx], Y[:,:, idx], Bx[:,:,idx], By[:,:,idx], linewidth = 2, color = norm, cmap='plasma')
     clb = plt.colorbar(strm.lines)
     clb.set_label("Magnetic field strength [T]")
     ax.set_xlabel("X-axis [m]")
     ax.set_ylabel("Y-axis [m]")
-    ax.set_title("Stream plot from slice at z=0")
+    ax.set_title("Stream plot from slice at z=0 and gridsize {} and {} elements per ring".format(gridsize, elements))
     plt.show()
     
     
 
 def main():
     
-    test_algorithm()
-    # two_circle()
-    # ringworld()
+    # test_algorithm()
+    two_circle(21, 42)
+    # ringworld(9, 32)
 
 
 if __name__=="__main__":
