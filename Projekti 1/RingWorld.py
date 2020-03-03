@@ -131,11 +131,11 @@ def test_algorithm():
     None.
 
     """
-
+    # Grid spacing from where calculate errors
     space = np.geomspace(5, 123, 10, dtype = int) 
     
-    r = 2
-    i = 1
+    r = 2 # radius
+    i = 1 # current
     
     x = np.linspace(-3, 3 , 21)
     y = np.linspace(-3, 3 , 21)
@@ -149,6 +149,7 @@ def test_algorithm():
         Bright[j] = (i*r**2) / (2 * (y[j]**2 + r**2)**(3/2) )
               
     errors = []
+    
     for n in space:
         
         Bx = np.zeros_like(X)
@@ -182,7 +183,6 @@ def two_circle(gridsize = 11):
     None.
 
     """
-    
     x = np.linspace(-3, 3 , gridsize)
     y = np.linspace(-3, 3 , gridsize)
     z = np.linspace(-3, 3 , gridsize)
@@ -203,7 +203,7 @@ def two_circle(gridsize = 11):
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-2,0,0), 'x', 2, 1, 42, ax)
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (2,0,0), 'x', 2, 1, 42, ax)
     
-    print ("Ringworld ", time.time() - start_time, "s to run")
+    print ("Ringworld with 2 rings did take: ", time.time() - start_time, "s to run")
         
     # Using logarithm to scale the arraow length
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
@@ -229,6 +229,7 @@ def two_circle(gridsize = 11):
     ax.set_ylabel("Y-axis [m]")
     ax.set_title("Stream plot from slice at z=0")
     plt.show()
+    
    
 def ringworld(gridsize = 11):
     """
@@ -244,8 +245,7 @@ def ringworld(gridsize = 11):
     -------
     None.
 
-    """
-    
+    """  
     x = np.linspace(-2.5, 2.5 , gridsize)
     y = np.linspace(-2.5, 2.5 , gridsize)
     z = np.linspace(-2.5, 2.5 , gridsize)
@@ -260,13 +260,13 @@ def ringworld(gridsize = 11):
     ax = fig.add_subplot(111, projection='3d')
     
     start_time = time.time()
+    # Initialize rings..
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1.1,0,0), 'y', 0.8, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-1.1,0,0), 'y', 0.8, -1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,1.1,0), 'x', 0.8, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,-1.1,0), 'x', 0.8, -1, 42, ax)
     
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1.1,0,0), 'y', 0.8, 1, 32, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-1.1,0,0), 'y', 0.8, -1, 32, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,1.1,0), 'x', 0.8, 1, 32, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,-1.1,0), 'x', 0.8, -1, 32, ax)
-    
-    print ("Ringworld ", time.time() - start_time, "s to run")
+    print ("Ringworld with four ring did take: ", time.time() - start_time, "s to run")
     
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
     ax.quiver(X,Y,Z,log(Bx),log(By),log(Bz),  alpha = 0.6 )
@@ -298,51 +298,8 @@ def main():
     
     # test_algorithm()
     two_circle()
-    # ringworld()
-    # gridkoko = 11
-    # x = np.linspace(-4, 4 , gridkoko)
-    # y = np.linspace(-4, 4 , gridkoko)
-    # z = np.linspace(-4, 4 , gridkoko)
-    
-    # X, Y, Z = np.meshgrid(x, y, z)
-    
-    # Bx = np.zeros_like(X)
-    # By = np.zeros_like(X)
-    # Bz = np.zeros_like(X)
+    ringworld()
 
-    # fig = plt.figure(figsize  = (13,13))
-    # ax = fig.add_subplot(111, projection='3d')
-    
-    # # start_time = time.time()
-    
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1,2,3), 'z', 1, 1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (3,1,2), 'x', 2, 1, 42, ax)
-        
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 2, 1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'y', 3, 1, 42, ax)
-        
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'z', 2, 1, 42, ax)
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'z', 2, 1, 42, ax)
-    
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'x', 1, 1, 42, ax)
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'x', 1, 1, 42, ax)
-    
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'z', 1, 1, 42, ax)
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'z', 1, 1, 42, ax)
-        
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'y', 1, -1, 42, ax)
-    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 1, 1, 42, ax)
-    
-    # lognorm = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
-    # ax.quiver(X,Y,Z,lognorm(Bx),lognorm(By),lognorm(Bz),  alpha = 0.6 )
-    
-    # print ("Ringworld ", time.time() - start_time, "s to run")
-    
-    # fig = plt.figure(figsize  = (13,13))
-    # plt.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5])
-    
-        
-    
 
 if __name__=="__main__":
     main()
