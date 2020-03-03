@@ -286,7 +286,7 @@ def ringworld(gridsize = 11, elements = 42):
     
     print ("Ringworld with four ring and {} grid with {} elements per ring did take: {:.2f} s to run "
            .format(gridsize, elements, time.time() - start_time))
-    
+    # using logarithm to try prune the arrows
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
     ax.quiver(X,Y,Z,log(Bx),log(By),log(Bz),  alpha = 0.6 )
     ax.set_xlabel("X-axis [m]")
@@ -316,9 +316,9 @@ def ringworld(gridsize = 11, elements = 42):
 
 def main():
     
-    # test_algorithm()
-    two_circle(21, 42)
-    # ringworld(9, 32)
+    test_algorithm()
+    # two_circle()
+    # ringworld()
 
 
 if __name__=="__main__":
