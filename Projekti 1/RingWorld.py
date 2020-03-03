@@ -18,22 +18,24 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
     
     dt = 2*np.pi / pieces
     
+    # Initialize the wire elements from which calculate magnetic field
     wire_elements = np.zeros((pieces, 3))
     
-    if axis == 'x':
-        
+    # Place coordinates where make an current circle
+    x, y, z = place
+     
+    # Use axis parameter to 
+    if axis == 'x':        
         for i in range(pieces):
-            wire_elements[i,:] = (place, radius*np.cos(dt*i), radius*np.sin(dt*i))
+            wire_elements[i,:] = (x, y + radius*np.cos(dt*i), z + radius*np.sin(dt*i))
     
     elif axis == 'y':
-        
          for i in range(pieces):
-            wire_elements[i,:] = (radius*np.sin(dt*i), place ,radius*np.cos(dt*i))
+            wire_elements[i,:] = (x + radius*np.cos(dt*i), y  , z + radius*np.sin(dt*i))
     
-    else:
-        
+    else:        
          for i in range(pieces):
-            wire_elements[i,:] = (radius*np.sin(dt*i),radius*np.cos(dt*i), place)
+            wire_elements[i,:] = (x + radius*np.cos(dt*i), y + radius*np.sin(dt*i), z)
             
     if ax != None:
         ax.plot(wire_elements[:,0], wire_elements[:,1], wire_elements[:,2], 'r')
@@ -54,8 +56,7 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
     small_arrows[-1,1] = wire_elements[0,1] - wire_elements[-1,1]
     small_arrows[-1,2] = wire_elements[0,2] - wire_elements[-1,2]
     
-    # ax.quiver(wire_elements[:,0],wire_elements[:,1],wire_elements[:,2], small_arrows[:,0],
-    #              small_arrows[:,1], small_arrows[:,2])
+  
     
     for i in range(X.shape[0]):
 
@@ -76,6 +77,18 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
     
 
 def test_algorithm():
+    """
+    Test the algorithm using gridspace 21 and comparing analytical 
+    and numerical result using error abs sum and plotting
+    this to logarithmical scale comparing different elements 
+    amount -> If plot is linear, error is polynomial and algorithm
+    is working.
+
+    Returns
+    -------
+    None.
+
+    """
 
     space = np.geomspace(3, 123, 10, dtype = int)  
     
@@ -90,9 +103,9 @@ def test_algorithm():
         
     Bright = np.zeros(21)    
     for j in range(21):        
+        # Analytical result is known at x-axis center
         Bright[j] = (i*r**2) / (2 * (y[j]**2 + r**2)**(3/2) )
-        
-        
+              
     errors = []
     for n in space:
         
@@ -100,11 +113,11 @@ def test_algorithm():
         By = np.zeros_like(X)
         Bz = np.zeros_like(X)
     
-        Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 0, 'x', r, i, n)
-        
+        Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,0,2), 'x', r, i, n)
+        # Take value along axis where analytical function is known
         Bx_num = Bx[10, :, 10]
         errors.append(np.sum(np.abs(Bx_num - Bright)))
-        
+    # Plot the errors as function of line element amount    
     plt.scatter(space, np.array(errors), facecolor = 'red')
     plt.yscale('log')
     plt.xscale('log')
@@ -130,38 +143,33 @@ def main():
     fig = plt.figure(figsize  = (13,13))
     ax = fig.add_subplot(111, projection='3d')
     
-    start_time = time.time()
+    # start_time = time.time()
     
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'x', 1, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'x', 2, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1,2,3), 'z', 1, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (3,1,2), 'x', 2, 1, 42, ax)
         
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 2, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'y', 3, 1, 42, ax)
+    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 2, 1, 42, ax)
+    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'y', 3, 1, 42, ax)
         
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'z', 2, 1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'z', 2, 1, 42, ax)
+    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -3, 'z', 2, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'z', 2, 1, 42, ax)
     
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'x', 1, 1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'x', 1, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'x', 1, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'x', 1, 1, 42, ax)
     
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'z', 1, 1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'z', 1, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'z', 1, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'z', 1, 1, 42, ax)
         
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'y', 1, -1, 42, ax)
-    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 1, 1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'y', 1, -1, 42, ax)
+    # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 1, 1, 42, ax)
     
-    # norm = lambda x, y, z: np.sqrt(x**2+y**2+z**2)    
-    # c = norm(Bx,By,Bz)
-    # c = (c.ravel() - c.min()) / c.ptp()
-    # c = np.concatenate((c, np.repeat(c, 2)))
-    # c = plt.cm.hsv(c)
-        
-    ax.quiver(X,Y,Z,Bx,By,Bz, normalize = True, alpha = 0.6 , length = 0.5)
+    lognorm = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
+    ax.quiver(X,Y,Z,lognorm(Bx),lognorm(By),lognorm(Bz),  alpha = 0.6 )
     
-    print ("Ringworld ", time.time() - start_time, "s to run")
+    # print ("Ringworld ", time.time() - start_time, "s to run")
     
-    fig = plt.figure(figsize  = (13,13))
-    plt.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5])
+    # fig = plt.figure(figsize  = (13,13))
+    # plt.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5])
     
         
     
