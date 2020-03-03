@@ -9,13 +9,53 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 from mpl_toolkits.mplot3d import Axes3D
-from numba import jit
 import time
 
-mu = 1.25663706212e-6
+MU = 1.25663706212e-6
 
 def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
-    
+    """
+    Calculates the magnetic field of a circle using small wire elements
+    repsenting circle
+
+    Parameters
+    ----------
+    X : np.array
+        X-axis meshgrid
+    Y : np.array
+        Y-axis meshgrid
+    Z : np.array
+        Z-axis meshgrid
+    Bx : np.array
+        B-field meshgrid of x-axis
+    By : np.array
+        B-field meshgrid of y-axis
+    Bz : np.array
+        B-field meshgrid of y-axis
+    place :  (x,y,z) tuplet
+        Place where put the circle midpoint
+    axis : char
+        What is the axis of rotation
+    radius : float
+        Radius of the circle
+    I : Current
+        Current in the circle
+    pieces : int
+        How many wire elements in circle
+    ax : matplot axis, optional
+        Plot to this 
+
+    Returns
+    -------
+    Bx : TYPE
+        DESCRIPTION.
+    By : TYPE
+        DESCRIPTION.
+    Bz : TYPE
+        DESCRIPTION.
+
+    """
+    # Parametrization variable    
     dt = 2*np.pi / pieces
     
     # Initialize the wire elements from which calculate magnetic field
@@ -65,8 +105,10 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
             for k in range(X.shape[2]):
                 
                 for q in range(len(wire_elements)):
-                    
-                    r = (X[i,j,k], Y[i, j, k], Z[i,j,k]) - wire_elements[q,:]
+                    # Calculate the distance from wire_element middlepoint
+                    r = (X[i,j,k], Y[i, j, k], Z[i,j,k]) - wire_elements[q,:] 
+                    + (small_arrows[q,:] / 2)
+                        
                     dl = small_arrows[q,:]
                     B = np.cross(dl, r) / np.linalg.norm(r)**3
                     Bx[i,j,k] += (B[0] * I) / (4*np.pi)
@@ -90,7 +132,7 @@ def test_algorithm():
 
     """
 
-    space = np.geomspace(3, 123, 10, dtype = int)  
+    space = np.geomspace(5, 123, 10, dtype = int) 
     
     r = 2
     i = 1
@@ -113,7 +155,7 @@ def test_algorithm():
         By = np.zeros_like(X)
         Bz = np.zeros_like(X)
     
-        Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,0,2), 'x', r, i, n)
+        Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,0,0), 'x', r, i, n)
         # Take value along axis where analytical function is known
         Bx_num = Bx[10, :, 10]
         errors.append(np.sum(np.abs(Bx_num - Bright)))
@@ -126,27 +168,79 @@ def test_algorithm():
     plt.ylabel("Abs. error sum")
 
 
-def main():
+def two_circle(gridsize = 11):
     
-    # test_algorithm()
-    gridkoko = 11
-    x = np.linspace(-4, 4 , gridkoko)
-    y = np.linspace(-4, 4 , gridkoko)
-    z = np.linspace(-4, 4 , gridkoko)
+    x = np.linspace(-3, 3 , gridsize)
+    y = np.linspace(-3, 3 , gridsize)
+    z = np.linspace(-3, 3 , gridsize)
     
     X, Y, Z = np.meshgrid(x, y, z)
     
     Bx = np.zeros_like(X)
     By = np.zeros_like(X)
     Bz = np.zeros_like(X)
-
+        
     fig = plt.figure(figsize  = (13,13))
     ax = fig.add_subplot(111, projection='3d')
     
-    # start_time = time.time()
+    start_time = time.time()
     
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1,2,3), 'z', 1, 1, 42, ax)
-    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (3,1,2), 'x', 2, 1, 42, ax)
+    # We have as assigment says two circle that have radius = 1 and
+    # are 4 units away from each other with current 1 Ampere
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-2,0,0), 'x', 2, 1, 42, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (2,0,0), 'x', 2, 1, 42, ax)
+    
+    print ("Ringworld ", time.time() - start_time, "s to run")
+        
+    # Using logarithm to scale the arraow length
+    log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
+    ax.quiver(X,Y,Z,log(Bx),log(By),log(Bz),  alpha = 0.6 )
+    ax.set_xlabel("X-axis [m]")
+    ax.set_ylabel("Y-axis [m]")
+    ax.set_zlabel("Z-axis [m]")
+    ax.set_title("Ringworld of two ring in x-axis with mu=1 and logaritm arrow length")   
+    plt.show()
+    
+    # Convert magnetic field to teslas by multiplying with MU
+    Bx *= MU
+    By *= MU
+    Bz *= MU
+    
+    fig = plt.figure(figsize  = (13,13))
+    ax = fig.gca()
+    norm = np.sqrt(Bx[:,:,5]**2 + By[:,:,5]**2 + Bz[:,:,5]**2)
+    strm = ax.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5], linewidth = 2, color = norm, cmap='plasma')
+    clb = plt.colorbar(strm.lines)
+    clb.set_label("Magnetic field strength [T]")
+    ax.set_xlabel("X-axis [m]")
+    ax.set_ylabel("Y-axis [m]")
+    ax.set_title("Stream plot from slice at z=0")
+    plt.show()
+   
+# def ringworld():
+
+def main():
+    
+    # test_algorithm()
+    two_circle()
+    # gridkoko = 11
+    # x = np.linspace(-4, 4 , gridkoko)
+    # y = np.linspace(-4, 4 , gridkoko)
+    # z = np.linspace(-4, 4 , gridkoko)
+    
+    # X, Y, Z = np.meshgrid(x, y, z)
+    
+    # Bx = np.zeros_like(X)
+    # By = np.zeros_like(X)
+    # Bz = np.zeros_like(X)
+
+    # fig = plt.figure(figsize  = (13,13))
+    # ax = fig.add_subplot(111, projection='3d')
+    
+    # # start_time = time.time()
+    
+    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1,2,3), 'z', 1, 1, 42, ax)
+    # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (3,1,2), 'x', 2, 1, 42, ax)
         
     # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 2, 1, 42, ax)
     # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 3, 'y', 3, 1, 42, ax)
@@ -163,8 +257,8 @@ def main():
     # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, 2, 'y', 1, -1, 42, ax)
     # # Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, -2, 'y', 1, 1, 42, ax)
     
-    lognorm = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
-    ax.quiver(X,Y,Z,lognorm(Bx),lognorm(By),lognorm(Bz),  alpha = 0.6 )
+    # lognorm = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
+    # ax.quiver(X,Y,Z,lognorm(Bx),lognorm(By),lognorm(Bz),  alpha = 0.6 )
     
     # print ("Ringworld ", time.time() - start_time, "s to run")
     
