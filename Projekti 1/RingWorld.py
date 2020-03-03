@@ -169,6 +169,19 @@ def test_algorithm():
 
 
 def two_circle(gridsize = 11):
+    """
+    Plot two circle along x-axis as required in assigment
+
+    Parameters
+    ----------
+    gridsize : int, optional
+        What is the gridsize. The default is 11.
+
+    Returns
+    -------
+    None.
+
+    """
     
     x = np.linspace(-3, 3 , gridsize)
     y = np.linspace(-3, 3 , gridsize)
@@ -217,12 +230,75 @@ def two_circle(gridsize = 11):
     ax.set_title("Stream plot from slice at z=0")
     plt.show()
    
-# def ringworld():
+def ringworld(gridsize = 11):
+    """
+    Calculates four rings that magnifys each other magnetic field 
+    using currents oppositely directed
+
+    Parameters
+    ----------
+    gridsize : int, optional
+        Gridsize where calculate B-field. The default is 11.
+
+    Returns
+    -------
+    None.
+
+    """
+    
+    x = np.linspace(-2.5, 2.5 , gridsize)
+    y = np.linspace(-2.5, 2.5 , gridsize)
+    z = np.linspace(-2.5, 2.5 , gridsize)
+    
+    X, Y, Z = np.meshgrid(x, y, z)
+    
+    Bx = np.zeros_like(X)
+    By = np.zeros_like(X)
+    Bz = np.zeros_like(X)
+        
+    fig = plt.figure(figsize  = (13,13))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    start_time = time.time()
+    
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (1.1,0,0), 'y', 0.8, 1, 32, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-1.1,0,0), 'y', 0.8, -1, 32, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,1.1,0), 'x', 0.8, 1, 32, ax)
+    Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (0,-1.1,0), 'x', 0.8, -1, 32, ax)
+    
+    print ("Ringworld ", time.time() - start_time, "s to run")
+    
+    log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
+    ax.quiver(X,Y,Z,log(Bx),log(By),log(Bz),  alpha = 0.6 )
+    ax.set_xlabel("X-axis [m]")
+    ax.set_ylabel("Y-axis [m]")
+    ax.set_zlabel("Z-axis [m]")
+    ax.set_title("Ringworld with four rings with mu=1 and logaritm arrow length")   
+    plt.show()
+    
+    # Convert magnetic field to teslas by multiplying with MU
+    Bx *= MU
+    By *= MU
+    Bz *= MU
+    
+    fig = plt.figure(figsize  = (13,13))
+    ax = fig.gca()
+    norm = np.sqrt(Bx[:,:,5]**2 + By[:,:,5]**2 + Bz[:,:,5]**2)
+    strm = ax.streamplot(X[:,:,5], Y[:,:, 5], Bx[:,:,5], By[:,:,5], linewidth = 2, color = norm, cmap='plasma')
+    clb = plt.colorbar(strm.lines)
+    clb.set_label("Magnetic field strength [T]")
+    ax.set_xlabel("X-axis [m]")
+    ax.set_ylabel("Y-axis [m]")
+    ax.set_title("Stream plot from slice at z=0")
+    plt.show()
+    
+    
 
 def main():
     
     # test_algorithm()
     two_circle()
+    # ringworld()
     # gridkoko = 11
     # x = np.linspace(-4, 4 , gridkoko)
     # y = np.linspace(-4, 4 , gridkoko)
