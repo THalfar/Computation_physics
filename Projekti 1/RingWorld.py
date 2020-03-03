@@ -43,16 +43,16 @@ def calBcircle(X, Y, Z, Bx, By, Bz, place, axis, radius, I, pieces, ax = None):
     pieces : int
         How many wire elements in circle
     ax : matplot axis, optional
-        Plot to this 
+        Plot to this axis if given
 
     Returns
     -------
-    Bx : TYPE
-        DESCRIPTION.
-    By : TYPE
-        DESCRIPTION.
-    Bz : TYPE
-        DESCRIPTION.
+    Bx : np.array
+        Updated meshgrid values of B-field in x-axis
+    By : np.array
+        Updated meshgrid values of B-field in y-axis
+    Bz : np.array
+        Updated meshgrid values of B-field in x-axis
 
     """
     # Parametrization variable    
@@ -203,7 +203,7 @@ def two_circle(gridsize = 11):
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (-2,0,0), 'x', 2, 1, 42, ax)
     Bx, By, Bz = calBcircle(X,Y,Z,Bx,By,Bz, (2,0,0), 'x', 2, 1, 42, ax)
     
-    print ("Ringworld with 2 rings did take: ", time.time() - start_time, "s to run")
+    print ("RingWorld with 2 rings did take: ", time.time() - start_time, "s to run")
         
     # Using logarithm to scale the arraow length
     log = lambda x: np.sign(x) * np.log(np.abs(x) + 1)    
@@ -296,9 +296,9 @@ def ringworld(gridsize = 11):
 
 def main():
     
-    # test_algorithm()
-    two_circle()
-    ringworld()
+    test_algorithm()
+    # two_circle()
+    # ringworld()
 
 
 if __name__=="__main__":
