@@ -25,11 +25,12 @@ from scipy.integrate import simps
 import h5py
 import os
 
-FILENAMESAVE = "testa"
-FILENAMELOAD = "testa"
-SAVING = False
-LOADING = False
+FILENAMESAVE = "perjantai.hdf5"
+FILENAMELOAD = "perjantai.hdf5"
+SAVING = True
+LOADING = True
 
+TULOSTETAANKEHITYS = True
 
 def hartree_potential(ns,x):
     """ 
@@ -45,15 +46,18 @@ def hartree_potential(ns,x):
         Vhartree[ix]= simps(f, x)
     return Vhartree
 
+
 def ee_potential(x):
     global ee_coef
     
     """ 1D electron-electron interaction """
     return ee_coef[0] / sqrt(x**2 + ee_coef[1])
 
+
 def ext_potential(x,m=1.0,omega=1.0):
     """ 1D harmonic quantum dot """
     return 0.5*m*omega**2*x**2
+
 
 def density(psis):
     ns=zeros((len(psis[0]),))
@@ -66,10 +70,12 @@ def density(psis):
              
     return ns
     
+
 def initialize_density(x,dx,normalization=1):
     rho=exp(-x**2)
     A=simps(rho,x)
     return normalization/A*rho
+
 
 def check_convergence(Vold,Vnew,threshold):
     difference_ = amax(abs(Vold-Vnew))
@@ -78,6 +84,7 @@ def check_convergence(Vold,Vnew,threshold):
     if difference_ <threshold:
         converged=True
     return converged
+
 
 def diagonal_energy(T,orbitals,x):
     """ 
@@ -91,6 +98,7 @@ def diagonal_energy(T,orbitals,x):
         evec=orbitals[i]
         E_diag+=simps(evec.conj()*Tt.dot(evec),x)
     return E_diag
+
 
 def offdiag_potential_energy(orbitals,x):
     """ 
@@ -109,6 +117,7 @@ def offdiag_potential_energy(orbitals,x):
             U+=simps(fi,x)
     return U
 
+
 def plot_orbitals(orbitals, x, ax):
         
     idx = 1
@@ -117,105 +126,39 @@ def plot_orbitals(orbitals, x, ax):
         prob = orb * orb.conj()
         ax.plot(x, prob, label = "Density of electron {}".format(idx))
         idx += 1
-
-
-
-
-def save_ns_in_ascii(ns,filename):
-    s=shape(ns)
-    f=open(filename+'_density.txt','w')
-    for ix in range(s[0]):
-        f.write('{0:12.8f}\n'.format(ns[ix]))
-    f.close()
-    f=open(filename+'_shape.txt','w')
-    f.write('{0:5}'.format(s[0]))
-    f.close()
-    
-    
-def save_orbitals_in_ascii(orbitals, filename):
-    
-    f = open(filename+'_orbitals.txt','w')
-    
-    for orb in orbitals:
         
-        for idx in range(len(orb)):
-            
-            f.write("{0:12.8f}\n".format(orb[idx]))
-            
-    f.close
-
-
-def save_grid_in_ascii(x, filename):
-    
-    f = open(filename+'_grid.txt','w')
-    
-    for idx in range(len(x)):        
-        f.write("{0:12.8f}\n".format(x[idx]))
         
-    f.close
+def save_data_to_hdf5_file(fname, orbitals, density, N_e, occ, grid, ee_coefs):
 
+    f = h5py.File(fname,"w")
     
-def load_orbitals_in_ascii(filename):    
+    gset = f.create_dataset("grid",data=grid,dtype='f')
+    gset.attrs["info"] = '1D grid'
+    
+    oset = f.create_dataset("orbitals",shape=(len(grid),N_e),dtype='f')
+    oset.attrs["info"] = '1D orbitals as (len(grid),N_electrons)'
+    for i in range(len(orbitals)):
+        oset[:,i]=orbitals[i]
         
-    f = open(filename+"_shape.txt", 'r')
-
-    for line in f:
-        s = array(line.split(), dtype = int)
+    occ_set = f.create_dataset("occ", data=occ, dtype=int)
+    occ_set.attrs["info"] = "occ"
+    
+    ee_coefs_set = f.create_dataset("ee_coefs", data = ee_coefs, dtype = 'f')
+    ee_coefs_set.attrs["info"] = "ee_coefs"
+    
+    density_set = f.create_dataset("density",  data = density, dtype = 'f')
+    density_set.attrs["info"] = "density"
+    
     f.close()
-    
-    d = loadtxt(filename+"_orbitals.txt")
-    
-    En = int(len(d) / s[0])
-    
-    orbitals = zeros((En, s[0]))
-    
-    for e in range(En):
-        
-        for idx in range(s[0]):
-            
-            orbitals[e, idx] = d[(e+1) * idx]
-                
-    return orbitals
-    
 
-def load_grid_from_ascii(filename):
-
-    f = open(filename+"_shape.txt", 'r')
-
-    for line in f:
-        s = array(line.split(), dtype = int)
-    f.close()
-    
-    x = zeros((s[0],))
-    d = loadtxt(filename+"_grid.txt")
-    
-    for idx in range(s[0]):
-        x[idx] = d[idx]
-    
-    return x
-    
-def load_ns_from_ascii(filename):
-    f=open(filename+'_shape.txt','r')
-    for line in f:
-        s=array(line.split(),dtype=int)
-    f.close()
-    ns=zeros((s[0],))
-    d=loadtxt(filename+'_density.txt')
-    k=0
-    for ix in range(s[0]):
-        ns[ix]=d[k]
-        k+=1
-    return ns
-
-def save_data_to_hdf5_file(fname,orbitals,density,N_e,occ,grid,ee_coefs):
-    return
 
 def calculate_SIC(orbitals,x):
     V_SIC = []
     for i in range(len(orbitals)):
         V_SIC.append(-hartree_potential(abs(orbitals[i])**2,x))
     return V_SIC
-            
+   
+         
 def normalize_orbital(evec,x):
     """ Normalize orbitals to one """
     
@@ -224,6 +167,7 @@ def normalize_orbital(evec,x):
     
     return evec / sqrt(integral)
  
+    
 def kinetic_hamiltonian(x):
     grid_size = x.shape[0]
     dx = x[1] - x[0]
@@ -238,6 +182,7 @@ def kinetic_hamiltonian(x):
         [-1, 0, 1])
     return H0
 
+
 def main():
 
      # --- Setting up the system etc. ---
@@ -251,9 +196,11 @@ def main():
     #       occ = [0,1,2,3] means all spin up
     
     # S = 3
-    # occ = [0,1,2,3,4,5]
+    occ = [0,1,2,3,4,5]
     # S = 0
-    occ = [0,0,1,1,2,2]    
+ 
+    
+    # occ = [0,0,1,1,2,2]
     
     # occ = [0,1,2,3]
     # occ = [0,0,1,1]
@@ -261,7 +208,7 @@ def main():
     # grid
     x=linspace(-4,4,120)
     # threshold
-    threshold=1.0e-4
+    threshold=1.0e-6
     # mixing value
     mix=0.2
     # maximum number of iterations
@@ -273,23 +220,29 @@ def main():
     T = kinetic_hamiltonian(x)
     Vext = ext_potential(x)
 
-    """
-    #FILL#
-    In problems 2 and 3: READ in density / orbitals / etc.
-    """
-        
     filename = FILENAMELOAD
-          
+              
     if LOADING:
-        if os.path.isfile(filename + "_shape.txt"):
+
+        print("Loading from file {}".format(filename))
+        print("*** *** ***")
+        
+        f = h5py.File(filename, 'r')
+        print('Keys in hdf5 file: ',list(f.keys()))
+        
+        x = array(f["grid"])
+        orbs = array(f["orbitals"])
+        orbitals = []
+        
+        for i in range(len(orbs[0,:])):
+            orbitals.append(orbs[:,i])
             
-            print("Loading from files {}_*".format(filename))
-            print("*** *** ***")
-            
-            ns=load_ns_from_ascii(filename)
-            x = load_grid_from_ascii(filename)
-            orbitals = load_orbitals_in_ascii(filename)
-            
+        occ = list(f["occ"])
+        ee_coef = list(f["ee_coefs"])
+        ns = array(f["density"])
+        
+        f.close()
+  
     else:
         ns=initialize_density(x,dx,N_e)
 
@@ -302,20 +255,19 @@ def main():
     
     if LOADING:                          
         VSIC=calculate_SIC(orbitals,x)
+        
     else:
         for i in range(N_e):
             VSIC.append(ns*0.0)            
         
-  
-        
-        """
-          #FILL#
-          In problems 2 and 3 this needs to be modified, since 
-          then you have orbitals already at this point !!!!!!!!!!!!
-        """
-
     Veff=sp.diags(Vext+Vhartree,0)
     H=T+Veff
+    
+    if TULOSTETAANKEHITYS:
+        fig = figure(figsize=(13,13))
+        ax = fig.gca()
+    
+    iter = 0
     for i in range(maxiters):
         print('\n\nIteration #{0}'.format(i))
         orbitals=[]
@@ -332,12 +284,22 @@ def main():
         Vhartree=hartree_potential(ns,x)
         VSIC=calculate_SIC(orbitals,x)
         Veff_new=sp.diags(Vext+Vhartree,0)
+        
+        if TULOSTETAANKEHITYS:
+            ax.plot(x, ns, label = "{}".format(iter))
+            iter += 1
+        
         if check_convergence(Veff_old,Veff_new,threshold):
             break
         else:
             """ Mixing the potential """
             Veff= mix * Veff_old +  (1 - mix) * Veff_new
             H = T+Veff
+
+    if TULOSTETAANKEHITYS:
+        ax.set_title("Kehitystä")
+        legend()
+        show()
 
     print('\n\n')
     off = offdiag_potential_energy(orbitals,x)
@@ -351,26 +313,15 @@ def main():
 
     if SAVING:
         filename = FILENAMESAVE
-        print("Saving to files: {}_*".format(filename))
-        
-        save_ns_in_ascii(ns,filename)
-        save_orbitals_in_ascii(orbitals, filename)
-        save_grid_in_ascii(x, filename)
-        
-    """
-    #FILL#
-    In problems 2 and 3:
-    WRITE OUT to files: density / orbitals / energetics / etc.
-    save_ns_in_ascii(ns,'density') etc.
-    """
-    
+        save_data_to_hdf5_file(filename, orbitals, ns, N_e, occ, x, ee_coef)
+            
     fig = figure(figsize = (13,13))
     ax = fig.gca()
     ax.plot(x,abs(ns), label = "Total electron density")
     ax.set_xlabel(r'$x$ (a.u.)')
     ax.set_ylabel(r'$n(x)$ (1/a.u.)')
 
-    ax.set_title("N-electron density for N={} and tolerance {}".format(N_e, threshold))
+    ax.set_title("N-electron density for N={} and tolerance {} and occ {} and ee_coef {}".format(N_e, threshold, occ, ee_coef))
     
     energytext = "Total energy {:2.3f} Ha \n Kinetic energy {:2.3f} Ha \n Potential energy {:2.3f} Ha".format(E_tot, E_kin, E_pot)            
     ax.text(0.2,0.9,energytext, horizontalalignment='center', verticalalignment='center', transform = ax.transAxes)
