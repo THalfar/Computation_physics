@@ -498,8 +498,7 @@ def main():
         ns=load_ns_from_ascii(filename)
         x = load_grid_from_ascii(filename)
         orbitals = load_orbitals_in_ascii(filename)
-        
-        
+                
     # Or use the default values
     else:
         ns=initialize_density(x,dx,N_e)
@@ -519,31 +518,33 @@ def main():
         # Now VSIC is initialized as zero, since there are no orbitals yet
             VSIC.append(ns*0.0)
         
- 
-  
-    Veff=sp.diags(Vext+Vhartree,0)
-    H=T+Veff
-    for i in range(maxiters):
+   
+    Veff=sp.diags(Vext+Vhartree,0) # Starting potential part 1) in SCF
+    H=T+Veff # Starting hamiltonian
+    
+    # Iterate until convergence or maxiter is fulfilled
+    for i in range(maxiters): 
         print('\n\nIteration #{0}'.format(i))
         orbitals=[]
         for i in range(N_e):
             print('  Calculating orbitals for electron ', i+1)
-            eigs, evecs = sla.eigs(H+sp.diags(VSIC[i],0), k=N_e, which='SR')
-            eigs=real(eigs)
+            # Solve eigenvalues and vectors of different orbitals part 2) in SCF
+            eigs, evecs = sla.eigs(H+sp.diags(VSIC[i],0), k=N_e, which='SR') # Include SIC terms in energys
+            eigs=real(eigs) 
             evecs=real(evecs)
             print('    eigenvalues', eigs)
-            evecs[:,occ[i]]=normalize_orbital(evecs[:,occ[i]],x)
-            orbitals.append(evecs[:,occ[i]])
-        Veff_old = 1.0*Veff
-        ns=density(orbitals)
-        Vhartree=hartree_potential(ns,x)
-        VSIC=calculate_SIC(orbitals,x)
-        Veff_new=sp.diags(Vext+Vhartree,0)
-        if check_convergence(Veff_old,Veff_new,threshold):
+            evecs[:,occ[i]]=normalize_orbital(evecs[:,occ[i]],x) # normalize these
+            orbitals.append(evecs[:,occ[i]]) # Save to orbitals using spins i.e mixed if two electron at same orbital
+        Veff_old = 1.0*Veff # part 3) in SCF
+        ns=density(orbitals) # Part 4) in SCF
+        Vhartree=hartree_potential(ns,x) # Part 5) in SCF
+        VSIC=calculate_SIC(orbitals,x) # Calculate the SIC of electrons  
+        Veff_new=sp.diags(Vext+Vhartree,0) # New potential part 6) in SCF
+        if check_convergence(Veff_old,Veff_new,threshold): # check convergence part 7) SCF
             break
         else:
             """ Mixing the potential """
-            Veff= mix * Veff_old +  (1 - mix) * Veff_new
+            Veff= mix * Veff_old +  (1 - mix) * Veff_new # add potentials together using mix term
             H = T+Veff
 
     print('\n\n')
@@ -563,14 +564,8 @@ def main():
     save_ns_in_ascii(ns,filename)
     save_orbitals_in_ascii(orbitals, filename)
     save_grid_in_ascii(x, filename)
-    
-    """
-    #FILL#
-    In problems 2 and 3:
-    WRITE OUT to files: density / orbitals / energetics / etc.
-    save_ns_in_ascii(ns,'density') etc.
-    """
 
+    # Plotting. Everything nice is in file without ascii things.. 
     plot(x,abs(ns))
     xlabel(r'$x$ (a.u.)')
     ylabel(r'$n(x)$ (1/a.u.)')
